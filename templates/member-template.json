@@ -1,0 +1,12 @@
+{
+  "id": "unique-member-id",
+  "nickname": "安全昵称",
+  "cohort": "2026",
+  "status": "current",
+  "directions": ["Web 安全"],
+  "avatar": "/images/members/avatar.webp",
+  "github": "https://github.com/example",
+  "blog": "https://example.com",
+  "placeholder": false,
+  "order": 100
+}

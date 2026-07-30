@@ -1,0 +1,91 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  description?: string;
+  align?: 'left' | 'center';
+  dark?: boolean;
+}
+
+const {
+  eyebrow,
+  title,
+  description,
+  align = 'left',
+  dark = false,
+} = Astro.props;
+---
+
+<header class:list={['section-heading', `section-heading--${align}`, { 'section-heading--dark': dark }]}>
+  <p class="section-heading__eyebrow">{eyebrow}</p>
+  <h2>{title}</h2>
+  {description && <p class="section-heading__description">{description}</p>}
+</header>
+
+<style>
+  .section-heading {
+    max-width: 47rem;
+  }
+
+  .section-heading--center {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .section-heading__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin: 0 0 1rem;
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .section-heading--center .section-heading__eyebrow {
+    justify-content: center;
+  }
+
+  .section-heading__eyebrow::before {
+    width: 1.45rem;
+    height: 1px;
+    background: currentColor;
+    content: '';
+  }
+
+  h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: var(--text-section);
+    font-weight: 670;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.16;
+  }
+
+  .section-heading__description {
+    max-width: 42rem;
+    margin: 1.25rem 0 0;
+    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.75;
+  }
+
+  .section-heading--center .section-heading__description {
+    margin-inline: auto;
+  }
+
+  .section-heading--dark h2 {
+    color: var(--on-deep);
+  }
+
+  .section-heading--dark .section-heading__eyebrow {
+    color: var(--blue-300);
+  }
+
+  .section-heading--dark .section-heading__description {
+    color: var(--on-deep-muted);
+  }
+</style>

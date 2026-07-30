@@ -1,0 +1,467 @@
+---
+import PageHero from '../components/PageHero.astro';
+import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="关于我们"
+  description="了解智邮普创工作室的成立背景、团队定位、培养理念与所在地。"
+>
+  <PageHero
+    index="02"
+    eyebrow="ABOUT ZYPC / 关于我们"
+    title="从数字校园出发，在实践中持续生长"
+    description="智邮普创工作室成立于 2013 年，是西安邮电大学信息中心学生技术团队。十余年来，我们把课堂知识带进真实项目，也把竞赛中的敏锐与严谨带回校园实践。"
+    meta="EST. 2013 · STUDENT TECHNOLOGY TEAM"
+  />
+
+  <section class="story section-pad">
+    <div class="shell story__grid">
+      <div class="story__aside">
+        <span>2013</span>
+        <p>伴随学校数据中心建设成立</p>
+      </div>
+      <div class="story__content" data-reveal>
+        <p class="story__lead">
+          一支学生团队的价值，不只在于赢得多少比赛，也在于能否把所学变成真正解决问题的能力。
+        </p>
+        <div class="story__columns">
+          <p>
+            智邮普创工作室依托学校信息中心的软硬件条件，研究前沿计算机技术，并参与数字校园相关应用的建设与运行保障。这里是课堂理论走向工程实践的连接点，也是成员建立技术责任感的第一现场。
+          </p>
+          <p>
+            随着团队发展，网络安全成为最活跃的研究方向。成员日常学习安全技术，参加 CTF、AWD 与电子数据取证等赛事，开展公开技术交流，并在严格的考核和完善的学习路线中持续成长。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="facts">
+    <div class="shell facts__grid">
+      <div class="fact" data-reveal>
+        <span>01</span>
+        <strong>公益与免费</strong>
+        <p>不收取培训或入组费用</p>
+      </div>
+      <div class="fact" data-reveal>
+        <span>02</span>
+        <strong>面向全校</strong>
+        <p>纳新不限学院与专业</p>
+      </div>
+      <div class="fact" data-reveal>
+        <span>03</span>
+        <strong>以实践为师</strong>
+        <p>项目、竞赛与公开分享并行</p>
+      </div>
+      <div class="fact" data-reveal>
+        <span>04</span>
+        <strong>成员传承</strong>
+        <p>学长学姐无偿指导新成员</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="timeline section-pad">
+    <div class="shell">
+      <SectionHeading
+        eyebrow="OUR PATH / 团队轨迹"
+        title="一条不断被后来者续写的时间线"
+        description="时间节点使用已确认的团队事实，后续可在数据文件中继续补充重要事件。"
+      />
+      <div class="timeline__list">
+        <article class="timeline-item" data-reveal>
+          <time>2013</time>
+          <div>
+            <p class="timeline-item__label">FOUNDATION</p>
+            <h3>伴随学校数据中心建设成立</h3>
+            <p>从数字校园真实需求出发，形成连接教学与工程实践的学生技术平台。</p>
+          </div>
+        </article>
+        <article class="timeline-item" data-reveal>
+          <time>持续</time>
+          <div>
+            <p class="timeline-item__label">PRACTICE</p>
+            <h3>参与校园信息化建设与运行保障</h3>
+            <p>在合规和脱敏的前提下，把系统思维、工程规范与服务意识传递给每一届成员。</p>
+          </div>
+        </article>
+        <article class="timeline-item" data-reveal>
+          <time>现在</time>
+          <div>
+            <p class="timeline-item__label">SECURITY</p>
+            <h3>以网络安全竞赛与研究为当前特色</h3>
+            <p>在 Web、二进制、逆向、移动安全和取证等方向积累方法，通过竞赛检验协作与深度。</p>
+          </div>
+        </article>
+        <article class="timeline-item timeline-item--future" data-reveal>
+          <time>下一程</time>
+          <div>
+            <p class="timeline-item__label">TO BE CONTINUED</p>
+            <h3>由下一届成员继续书写</h3>
+            <p>技术会迭代，团队对真实问题、持续学习和开放传承的重视不会改变。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="culture section-pad">
+    <div class="shell culture__grid">
+      <div>
+        <SectionHeading
+          eyebrow="HOW WE GROW / 如何成长"
+          title="严谨，但不冷漠；开放，也有标准"
+          description="我们相信真正有效的培养，需要清晰路线、及时反馈和愿意一起解决问题的人。"
+        />
+        <div class="culture__principles">
+          <div data-reveal>
+            <span>01</span>
+            <div><h3>先理解，再复现</h3><p>不以工具数量衡量能力，更重视原理、边界与可验证的过程。</p></div>
+          </div>
+          <div data-reveal>
+            <span>02</span>
+            <div><h3>先记录，再传承</h3><p>把踩过的坑整理成文档、模板和分享，让下一位成员站得更高。</p></div>
+          </div>
+          <div data-reveal>
+            <span>03</span>
+            <div><h3>先负责，再突破</h3><p>安全研究必须建立在合法授权和明确边界之上，技术能力始终与责任同行。</p></div>
+          </div>
+        </div>
+      </div>
+      <div data-reveal>
+        <PhotoPlaceholder label="团队学习与分享" index="CULTURE / 02" tall />
+      </div>
+    </div>
+  </section>
+
+  <section class="location section-pad" id="location">
+    <div class="shell location__inner" data-reveal>
+      <div>
+        <p class="eyebrow">FIND US / 我们在这里</p>
+        <h2>长安校区<br />西区图书馆五楼</h2>
+      </div>
+      <div class="location__meta">
+        <span>XUPT · CHANG'AN CAMPUS</span>
+        <p>西安邮电大学信息中心学生技术团队</p>
+        <a href="/join/">查看加入方式 <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="location__coordinate" aria-hidden="true">34°09′N<br />108°54′E</div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section-pad {
+    padding: clamp(4rem, 7vw, 6.5rem) 0;
+  }
+
+  .story {
+    background: var(--surface);
+  }
+
+  .story__grid {
+    display: grid;
+    grid-template-columns: 0.55fr 2fr;
+    gap: clamp(3rem, 9vw, 9rem);
+  }
+
+  .story__aside span {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: clamp(2.2rem, 4vw, 4rem);
+    font-weight: 650;
+    letter-spacing: -0.08em;
+  }
+
+  .story__aside p {
+    max-width: 10rem;
+    margin-top: 0.6rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+  }
+
+  .story__lead {
+    max-width: 54rem;
+    color: var(--ink);
+    font-size: var(--text-feature);
+    font-weight: 580;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.48;
+  }
+
+  .story__columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 3.5rem;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+
+  .facts {
+    padding: 1rem 0;
+    background: var(--surface);
+  }
+
+  .facts__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .fact {
+    min-height: 12rem;
+    padding: 1.5rem;
+    border-right: 1px solid var(--line);
+  }
+
+  .fact:last-child {
+    border-right: 0;
+  }
+
+  .fact span {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+  }
+
+  .fact strong {
+    display: block;
+    margin-top: 2.3rem;
+    font-size: 1.2rem;
+  }
+
+  .fact p {
+    margin-top: 0.4rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .timeline {
+    background: var(--paper);
+  }
+
+  .timeline__list {
+    position: relative;
+    margin-top: 4rem;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .timeline-item {
+    display: grid;
+    grid-template-columns: 0.65fr 2fr;
+    gap: 3rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .timeline-item time {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: 640;
+  }
+
+  .timeline-item__label {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.11em;
+  }
+
+  .timeline-item h3 {
+    margin-top: 0.5rem;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: 640;
+    letter-spacing: -0.018em;
+  }
+
+  .timeline-item div > p:last-child {
+    max-width: 46rem;
+    margin-top: 0.7rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .timeline-item--future {
+    color: var(--on-deep);
+    margin-top: 1rem;
+    padding-inline: 2rem;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: var(--deep);
+  }
+
+  .timeline-item--future time {
+    color: var(--blue-300);
+  }
+
+  .timeline-item--future div > p:last-child {
+    color: var(--on-deep-muted);
+  }
+
+  .culture {
+    background: var(--surface);
+  }
+
+  .culture__grid {
+    display: grid;
+    grid-template-columns: 1fr 0.9fr;
+    align-items: center;
+    gap: clamp(3rem, 8vw, 7rem);
+  }
+
+  .culture__principles {
+    margin-top: 3rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .culture__principles > div {
+    display: grid;
+    grid-template-columns: 2.3rem 1fr;
+    gap: 1rem;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .culture__principles span {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+  }
+
+  .culture__principles h3 {
+    font-size: 1.1rem;
+  }
+
+  .culture__principles p {
+    margin-top: 0.4rem;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .location {
+    overflow: hidden;
+    background: var(--blue-100);
+  }
+
+  .location__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    align-items: end;
+    gap: 3rem;
+  }
+
+  .location h2 {
+    margin-top: 1.2rem;
+    color: var(--ink);
+    font-size: var(--text-section);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.16;
+  }
+
+  .location__meta {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: 0.8rem;
+    padding: 1.5rem;
+    border-left: 2px solid var(--orange);
+  }
+
+  .location__meta span {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+  }
+
+  .location__meta p {
+    color: var(--muted);
+  }
+
+  .location__meta a {
+    width: fit-content;
+    margin-top: 0.6rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .location__coordinate {
+    position: absolute;
+    right: -2rem;
+    bottom: -3rem;
+    color: rgba(38, 123, 181, 0.08);
+    font-family: var(--font-mono);
+    font-size: clamp(4rem, 8vw, 6rem);
+    font-weight: 800;
+    line-height: 0.8;
+    text-align: right;
+  }
+
+  @media (max-width: 850px) {
+    .story__grid,
+    .culture__grid,
+    .location__inner {
+      grid-template-columns: 1fr;
+    }
+
+    .story__columns {
+      grid-template-columns: 1fr;
+    }
+
+    .facts__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .fact:nth-child(2) {
+      border-right: 0;
+    }
+
+    .fact:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .story__aside {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .facts__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .fact,
+    .fact:nth-child(2) {
+      min-height: auto;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .fact:last-child {
+      border-bottom: 0;
+    }
+
+    .fact strong {
+      margin-top: 1.5rem;
+    }
+
+    .timeline-item {
+      grid-template-columns: 1fr;
+      gap: 0.8rem;
+    }
+
+    .timeline-item--future {
+      padding: 1.4rem;
+    }
+  }
+</style>

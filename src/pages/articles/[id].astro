@@ -1,0 +1,239 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const articles = (await getCollection('articles')).filter((entry) => !entry.data.draft);
+  return articles.map((article) => ({
+    params: { id: article.id },
+    props: { article },
+  }));
+}
+
+interface Props {
+  article: CollectionEntry<'articles'>;
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+const formattedDate = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}).format(article.data.publishedAt);
+---
+
+<BaseLayout title={article.data.title} description={article.data.description}>
+  <article class="article-page">
+    <header class="article-hero">
+      <div class="article-hero__signal" aria-hidden="true"></div>
+      <div class="shell article-hero__inner">
+        <a class="article-back" href="/articles/">← 返回文章列表</a>
+        <div class="article-hero__meta">
+          <span>{article.data.category}</span>
+          {article.data.sample && <span class="article-hero__sample">示例内容</span>}
+        </div>
+        <h1>{article.data.title}</h1>
+        <p>{article.data.description}</p>
+        <div class="article-hero__byline">
+          <span>作者 · {article.data.author}</span>
+          <time datetime={article.data.publishedAt.toISOString()}>{formattedDate}</time>
+          {article.data.updatedAt && <span>更新于 {new Intl.DateTimeFormat('zh-CN').format(article.data.updatedAt)}</span>}
+        </div>
+      </div>
+    </header>
+    <div class="shell article-body">
+      <aside class="article-aside">
+        <p>ARTICLE NOTE</p>
+        <div>
+          {article.data.tags.map((tag) => <span>#{tag}</span>)}
+        </div>
+        <a href="/rss.xml">订阅 RSS ↗</a>
+      </aside>
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+    <footer class="article-footer">
+      <div class="shell article-footer__inner">
+        <div>
+          <span>END OF NOTE</span>
+          <h2>把过程写下来，<br />下一次会走得更远。</h2>
+        </div>
+        <a class="button button--light" href="/articles/">继续阅读</a>
+      </div>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .article-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 7.5rem 0 4rem;
+    background: var(--paper);
+  }
+
+  .article-hero__signal {
+    position: absolute;
+    inset: auto 0 0;
+    height: 55%;
+    opacity: 0.38;
+    background: url('/brand/brand-signal.svg') center bottom / cover no-repeat;
+  }
+
+  .article-hero__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+  }
+
+  .article-back {
+    display: inline-flex;
+    margin-bottom: 3.5rem;
+    color: var(--muted);
+    font-size: 0.78rem;
+    text-decoration: none;
+  }
+
+  .article-back:hover {
+    color: var(--blue-700);
+  }
+
+  .article-hero__meta {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .article-hero__meta span {
+    padding: 0.38rem 0.65rem;
+    border-radius: 999px;
+    background: var(--blue-100);
+    color: var(--blue-700);
+    font-size: 0.7rem;
+    font-weight: 650;
+  }
+
+  .article-hero__meta .article-hero__sample {
+    background: var(--orange-soft);
+    color: var(--orange-ink);
+  }
+
+  .article-hero h1 {
+    max-width: 58rem;
+    margin-top: 1.2rem;
+    font-size: clamp(2.25rem, 4.5vw, 3rem);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.18;
+  }
+
+  .article-hero > .article-hero__inner > p {
+    max-width: 44rem;
+    margin-top: 1.3rem;
+    color: var(--muted);
+    font-size: 0.98rem;
+    line-height: 1.8;
+  }
+
+  .article-hero__byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem 1.6rem;
+    margin-top: 2rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+  }
+
+  .article-body {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 48rem);
+    justify-content: center;
+    gap: clamp(2rem, 7vw, 6rem);
+    padding-top: clamp(4rem, 8vw, 7rem);
+    padding-bottom: clamp(5rem, 9vw, 9rem);
+  }
+
+  .article-aside {
+    position: sticky;
+    top: 7rem;
+    align-self: start;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--line-strong);
+  }
+
+  .article-aside > p {
+    margin: 0.8rem 0;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.61rem;
+    letter-spacing: 0.1em;
+  }
+
+  .article-aside div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .article-aside div span {
+    color: var(--blue-700);
+    font-size: 0.68rem;
+  }
+
+  .article-aside a {
+    display: block;
+    width: fit-content;
+    margin-top: 1.5rem;
+    color: var(--ink);
+    font-size: 0.74rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .article-footer {
+    padding: clamp(4rem, 8vw, 7rem) 0;
+    background: var(--deep);
+    color: var(--on-deep);
+  }
+
+  .article-footer__inner {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 3rem;
+  }
+
+  .article-footer span {
+    color: var(--blue-300);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.11em;
+  }
+
+  .article-footer h2 {
+    margin-top: 0.8rem;
+    font-size: var(--text-section);
+    font-weight: 620;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.12;
+  }
+
+  @media (max-width: 760px) {
+    .article-body {
+      grid-template-columns: 1fr;
+    }
+
+    .article-aside {
+      position: static;
+    }
+
+    .article-footer__inner {
+      align-items: start;
+      flex-direction: column;
+    }
+  }
+</style>

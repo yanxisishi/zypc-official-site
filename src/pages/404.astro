@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="页面未找到" description="你访问的页面不存在或已经移动。" noindex>
+  <section class="not-found">
+    <div class="not-found__grid" aria-hidden="true"></div>
+    <div class="shell not-found__inner">
+      <div class="not-found__code" aria-hidden="true">404</div>
+      <div>
+        <p class="eyebrow">ROUTE NOT FOUND</p>
+        <h1>这条路径暂时没有信号</h1>
+        <p>页面可能已经移动、尚未发布，或者地址输入有误。</p>
+        <div class="not-found__actions">
+          <a class="button" href="/">返回首页</a>
+          <a class="button button--ghost" href="/articles/">浏览文章</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    position: relative;
+    display: grid;
+    min-height: 78svh;
+    overflow: hidden;
+    place-items: center;
+    padding: 8rem 0 5rem;
+    background: var(--paper);
+  }
+
+  .not-found__grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.45;
+    background: url('/brand/brand-signal.svg') center / cover no-repeat;
+  }
+
+  .not-found__inner {
+    position: relative;
+    display: grid;
+    grid-template-columns: 0.7fr 1.3fr;
+    align-items: center;
+    gap: 4rem;
+  }
+
+  .not-found__code {
+    color: var(--blue-100);
+    font-family: var(--font-mono);
+    font-size: clamp(5rem, 12vw, 8rem);
+    font-weight: 900;
+    letter-spacing: -0.12em;
+    line-height: 0.8;
+  }
+
+  .not-found h1 {
+    margin-top: 1rem;
+    font-size: var(--text-page);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.14;
+  }
+
+  .not-found div > p:not(.eyebrow) {
+    margin-top: 1rem;
+    color: var(--muted);
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 760px) {
+    .not-found__inner {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+</style>

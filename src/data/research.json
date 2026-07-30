@@ -1,0 +1,74 @@
+[
+  {
+    "id": "web-security",
+    "index": "01",
+    "title": "Web 安全",
+    "english": "WEB SECURITY",
+    "summary": "从现代 Web 应用的攻防面出发，研究常见漏洞、业务安全与防御思路。",
+    "category": "security",
+    "topics": ["漏洞分析", "代码审计", "业务安全"]
+  },
+  {
+    "id": "penetration-testing",
+    "index": "02",
+    "title": "渗透测试",
+    "english": "PENETRATION TESTING",
+    "summary": "在合法授权和明确边界内理解系统暴露面，形成规范、可复现的安全评估方法。",
+    "category": "security",
+    "topics": ["信息收集", "攻击面分析", "安全评估"]
+  },
+  {
+    "id": "binary-security",
+    "index": "03",
+    "title": "二进制安全",
+    "english": "BINARY SECURITY",
+    "summary": "理解程序运行机理，研究内存安全、漏洞成因及二进制程序防护。",
+    "category": "security",
+    "topics": ["漏洞挖掘", "程序分析", "利用与防护"]
+  },
+  {
+    "id": "reverse-engineering",
+    "index": "04",
+    "title": "逆向工程",
+    "english": "REVERSE ENGINEERING",
+    "summary": "从指令、数据与行为中还原程序逻辑，建立面向复杂软件的分析能力。",
+    "category": "security",
+    "topics": ["静态分析", "动态调试", "算法还原"]
+  },
+  {
+    "id": "mobile-security",
+    "index": "05",
+    "title": "移动端安全",
+    "english": "MOBILE SECURITY",
+    "summary": "关注 Android 等移动平台的应用安全、组件机制与端侧数据保护。",
+    "category": "security",
+    "topics": ["Android", "应用分析", "端侧安全"]
+  },
+  {
+    "id": "digital-forensics",
+    "index": "06",
+    "title": "取证技术",
+    "english": "DIGITAL FORENSICS",
+    "summary": "围绕电子数据的提取、分析与证据链，训练严谨的数字取证思维。",
+    "category": "security",
+    "topics": ["内存取证", "流量分析", "电子数据"]
+  },
+  {
+    "id": "web-development",
+    "index": "07",
+    "title": "Web 开发",
+    "english": "WEB DEVELOPMENT",
+    "summary": "以真实需求为入口，把课堂知识转化为可靠、可维护的校园应用。",
+    "category": "engineering",
+    "topics": ["前端工程", "后端开发", "服务设计"]
+  },
+  {
+    "id": "mini-program",
+    "index": "08",
+    "title": "小程序开发",
+    "english": "MINI PROGRAM",
+    "summary": "面向校园场景探索轻量应用形态，关注体验、性能与持续维护。",
+    "category": "engineering",
+    "topics": ["微信小程序", "校园服务", "产品实践"]
+  }
+]

@@ -1,0 +1,224 @@
+---
+import { getEntry } from 'astro:content';
+import Brand from '../components/Brand.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  image = '/brand/logo-source.png',
+  noindex = false,
+} = Astro.props;
+
+const settingsEntry = await getEntry('siteSettings', 'main');
+if (!settingsEntry) throw new Error('缺少站点配置 src/data/site.json');
+const settings = settingsEntry.data;
+
+const fullTitle = title ? `${title}｜${settings.name}` : `${settings.name}｜服务数字校园，探索安全边界`;
+const metaDescription = description ?? settings.description;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : Astro.url;
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+  { href: '/', label: '首页' },
+  { href: '/about/', label: '关于' },
+  { href: '/research/', label: '研究与实践' },
+  { href: '/members/', label: '成员' },
+  { href: '/honors/', label: '荣誉' },
+  { href: '/articles/', label: '文章' },
+  { href: '/join/', label: '加入我们' },
+];
+
+const isActive = (href: string) =>
+  href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#f7f9fc" data-theme-color />
+    <script is:inline>
+      (() => {
+        const key = 'zypc-theme';
+        let saved = null;
+        try {
+          saved = localStorage.getItem(key);
+        } catch {}
+        const theme = saved === 'light' || saved === 'dark'
+          ? saved
+          : window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[data-theme-color]')?.setAttribute(
+          'content',
+          theme === 'dark' ? '#071525' : '#f7f9fc',
+        );
+      })();
+    </script>
+    <meta name="description" content={metaDescription} />
+    <meta name="generator" content={Astro.generator} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/png" href="/brand/logo-transparent.png" />
+    <link rel="alternate" type="application/rss+xml" title="智邮普创工作室文章 RSS" href="/rss.xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content={new URL(image, canonical)} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+    <title>{fullTitle}</title>
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    <header class="site-header" data-site-header>
+      <div class="shell site-header__inner">
+        <Brand compact />
+        <nav class="site-nav" id="site-nav" aria-label="主导航" data-site-nav>
+          {
+            navItems.map((item) => (
+              <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+        <div class="header-actions">
+          <button class="theme-toggle" type="button" aria-label="切换到深色模式" title="切换到深色模式" data-theme-toggle>
+            <svg class="theme-toggle__sun" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="3.5"></circle>
+              <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"></path>
+            </svg>
+            <svg class="theme-toggle__moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 15.2A8.1 8.1 0 0 1 8.8 4a8.2 8.2 0 1 0 11.2 11.2Z"></path>
+            </svg>
+          </button>
+          <a class="header-coordinate" href="/about/#location">
+            <span>WEST LIBRARY · 5F</span>
+            <i aria-hidden="true"></i>
+          </a>
+        </div>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>
+          <span class="sr-only">打开导航菜单</span>
+          <i></i><i></i>
+        </button>
+      </div>
+    </header>
+    <main id="main-content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="shell site-footer__grid">
+        <div class="site-footer__brand">
+          <Brand light />
+          <p>在真实问题中学习，在持续实践中成长。</p>
+        </div>
+        <div class="site-footer__column">
+          <p class="site-footer__title">LOCATION</p>
+          <p>{settings.location}</p>
+          <p>Xi'an University of Posts and Telecommunications</p>
+        </div>
+        <div class="site-footer__column">
+          <p class="site-footer__title">LINKS</p>
+          <a href={settings.github} target="_blank" rel="noreferrer">GitHub Organization ↗</a>
+          <a href="/rss.xml">RSS Feed ↗</a>
+          <a href="/join/">加入我们 ↗</a>
+        </div>
+      </div>
+      <div class="shell site-footer__bottom">
+        <span>© {new Date().getFullYear()} ZYPC</span>
+        <span>EST. 2013 · XUPT × ZYPC</span>
+        <span>服务数字校园，探索安全边界</span>
+      </div>
+    </footer>
+    <script>
+      const themeKey = 'zypc-theme';
+      const themeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const themeColor = document.querySelector('meta[data-theme-color]');
+      const themeButtons = document.querySelectorAll('[data-theme-toggle]');
+
+      const applyTheme = (theme: 'light' | 'dark') => {
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        themeColor?.setAttribute('content', theme === 'dark' ? '#071525' : '#f7f9fc');
+        const nextLabel = theme === 'dark' ? '切换到浅色模式' : '切换到深色模式';
+        themeButtons.forEach((button) => {
+          button.setAttribute('aria-label', nextLabel);
+          button.setAttribute('title', nextLabel);
+        });
+      };
+
+      themeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+          try {
+            localStorage.setItem(themeKey, nextTheme);
+          } catch {}
+          applyTheme(nextTheme);
+        });
+      });
+
+      themeQuery.addEventListener('change', (event) => {
+        let saved = null;
+        try {
+          saved = localStorage.getItem(themeKey);
+        } catch {}
+        if (saved !== 'light' && saved !== 'dark') {
+          applyTheme(event.matches ? 'dark' : 'light');
+        }
+      });
+
+      applyTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+
+      const toggle = document.querySelector('[data-menu-toggle]');
+      const nav = document.querySelector('[data-site-nav]');
+      const header = document.querySelector('[data-site-header]');
+
+      toggle?.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!open));
+        nav?.classList.toggle('is-open', !open);
+        document.body.classList.toggle('menu-open', !open);
+      });
+
+      nav?.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          toggle?.setAttribute('aria-expanded', 'false');
+          nav?.classList.remove('is-open');
+          document.body.classList.remove('menu-open');
+        });
+      });
+
+      const updateHeader = () => header?.classList.toggle('is-scrolled', window.scrollY > 16);
+      updateHeader();
+      window.addEventListener('scroll', updateHeader, { passive: true });
+
+      const revealTargets = document.querySelectorAll('[data-reveal]');
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12 });
+        revealTargets.forEach((target) => observer.observe(target));
+      } else {
+        revealTargets.forEach((target) => target.classList.add('is-visible'));
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "mentor-placeholder",
+    "nickname": "指导教师资料待补充",
+    "cohort": "导师",
+    "status": "mentor",
+    "directions": ["团队指导"],
+    "placeholder": true,
+    "order": 1
+  },
+  {
+    "id": "member-placeholder-01",
+    "nickname": "现役成员资料待补充",
+    "cohort": "2025",
+    "status": "current",
+    "directions": ["Web 安全"],
+    "placeholder": true,
+    "order": 10
+  },
+  {
+    "id": "member-placeholder-02",
+    "nickname": "现役成员资料待补充",
+    "cohort": "2024",
+    "status": "current",
+    "directions": ["二进制安全"],
+    "placeholder": true,
+    "order": 20
+  },
+  {
+    "id": "member-placeholder-03",
+    "nickname": "现役成员资料待补充",
+    "cohort": "2024",
+    "status": "current",
+    "directions": ["取证技术"],
+    "placeholder": true,
+    "order": 30
+  },
+  {
+    "id": "alumni-placeholder",
+    "nickname": "往届成员资料待补充",
+    "cohort": "往届",
+    "status": "alumni",
+    "directions": ["成员传承"],
+    "placeholder": true,
+    "order": 100
+  }
+]

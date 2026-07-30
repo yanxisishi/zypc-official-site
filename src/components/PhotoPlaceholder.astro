@@ -1,0 +1,121 @@
+---
+interface Props {
+  label: string;
+  index?: string;
+  tall?: boolean;
+}
+
+const { label, index = 'FIELD RECORD', tall = false } = Astro.props;
+---
+
+<div class:list={['photo-placeholder', { 'photo-placeholder--tall': tall }]} role="img" aria-label={`${label}照片占位区域`}>
+  <div class="photo-placeholder__orbit" aria-hidden="true"></div>
+  <div class="photo-placeholder__mark" aria-hidden="true">
+    <span>ZYPC</span>
+  </div>
+  <div class="photo-placeholder__label">
+    <span>{index}</span>
+    <strong>{label}</strong>
+    <small>真实照片待补充 · PLACEHOLDER</small>
+  </div>
+</div>
+
+<style>
+  .photo-placeholder {
+    position: relative;
+    display: flex;
+    min-height: 23rem;
+    overflow: hidden;
+    align-items: flex-end;
+    border: 1px solid rgba(87, 165, 215, 0.2);
+    border-radius: var(--radius-xl);
+    background:
+      linear-gradient(145deg, rgba(11, 44, 90, 0.98), rgba(22, 72, 119, 0.94)),
+      var(--deep);
+    color: var(--on-deep);
+  }
+
+  .photo-placeholder--tall {
+    min-height: 34rem;
+  }
+
+  .photo-placeholder::before {
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+    background-image:
+      linear-gradient(rgba(255,255,255,.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px);
+    background-size: 56px 56px;
+    content: '';
+  }
+
+  .photo-placeholder::after {
+    position: absolute;
+    right: -14%;
+    bottom: -42%;
+    width: 70%;
+    aspect-ratio: 1;
+    border: 1px solid rgba(106, 196, 244, 0.48);
+    border-radius: 50%;
+    box-shadow: 0 0 0 54px rgba(106, 196, 244, 0.06), 0 0 0 108px rgba(106, 196, 244, 0.04);
+    content: '';
+  }
+
+  .photo-placeholder__mark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    opacity: 0.28;
+    transform: translate(-50%, -58%);
+  }
+
+  .photo-placeholder__mark span {
+    color: rgba(255, 255, 255, 0.82);
+    font-family: var(--font-mono);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -0.08em;
+  }
+
+  .photo-placeholder__label {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 100%;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.35rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(8, 28, 57, 0.62);
+    backdrop-filter: blur(12px);
+  }
+
+  .photo-placeholder__label span,
+  .photo-placeholder__label small {
+    color: rgba(255, 255, 255, 0.58);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.11em;
+  }
+
+  .photo-placeholder__label strong {
+    font-size: 0.88rem;
+    font-weight: 620;
+  }
+
+  @media (max-width: 560px) {
+    .photo-placeholder {
+      min-height: 20rem;
+    }
+
+    .photo-placeholder__label {
+      grid-template-columns: auto 1fr;
+    }
+
+    .photo-placeholder__label small {
+      display: none;
+    }
+  }
+</style>

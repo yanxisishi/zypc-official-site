@@ -1,0 +1,51 @@
+---
+interface Props {
+  size?: 'small' | 'medium' | 'hero';
+  alt?: string;
+}
+
+const { size = 'medium', alt = '' } = Astro.props;
+---
+
+<span class:list={['logo-mark', `logo-mark--${size}`]}>
+  <img src="/brand/logo-transparent.png" width="968" height="968" alt={alt} />
+</span>
+
+<style>
+  .logo-mark {
+    position: relative;
+    display: inline-grid;
+    flex: 0 0 auto;
+    aspect-ratio: 1;
+    overflow: hidden;
+    place-items: center;
+    border: 1px solid rgba(52, 126, 177, 0.2);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(25, 70, 110, 0.1);
+    isolation: isolate;
+  }
+
+  img {
+    position: relative;
+    z-index: 1;
+    width: 68%;
+    height: auto;
+  }
+
+  .logo-mark--small {
+    width: 2.55rem;
+  }
+
+  .logo-mark--medium {
+    width: 3rem;
+  }
+
+  .logo-mark--hero {
+    width: clamp(14rem, 23vw, 19rem);
+    border-color: rgba(52, 126, 177, 0.24);
+    box-shadow:
+      0 22px 60px rgba(25, 70, 110, 0.12),
+      0 0 0 0.7rem var(--surface-subtle);
+  }
+</style>

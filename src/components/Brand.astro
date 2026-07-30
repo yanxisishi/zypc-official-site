@@ -1,0 +1,61 @@
+---
+import LogoMark from './LogoMark.astro';
+
+interface Props {
+  compact?: boolean;
+  light?: boolean;
+}
+
+const { compact = false, light = false } = Astro.props;
+---
+
+<a class:list={['brand', { 'brand--compact': compact, 'brand--light': light }]} href="/" aria-label="智邮普创工作室首页">
+  <LogoMark size={compact ? 'small' : 'medium'} />
+  <span class="brand__copy">
+    <strong>智邮普创</strong>
+    <small>ZYPC · XUPT</small>
+  </span>
+</a>
+
+<style>
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.68rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .brand__copy {
+    display: grid;
+    gap: 0.08rem;
+    line-height: 1;
+  }
+
+  strong {
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    font-weight: 760;
+  }
+
+  small {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+  }
+
+  .brand--light {
+    color: var(--on-deep);
+  }
+
+  .brand--light small {
+    color: var(--on-deep-muted);
+  }
+
+  @media (max-width: 420px) {
+    .brand__copy {
+      display: none;
+    }
+  }
+</style>

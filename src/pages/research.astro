@@ -1,0 +1,456 @@
+---
+import { getCollection } from 'astro:content';
+import PageHero from '../components/PageHero.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const entries = (await getCollection('research')).sort((a, b) =>
+  a.data.index.localeCompare(b.data.index),
+);
+const security = entries.filter((entry) => entry.data.category === 'security');
+const engineering = entries.filter((entry) => entry.data.category === 'engineering');
+---
+
+<BaseLayout
+  title="研究与实践"
+  description="智邮普创工作室的网络安全研究方向与数字校园工程实践。"
+>
+  <PageHero
+    index="03"
+    eyebrow="RESEARCH & PRACTICE / 研究与实践"
+    title="方向是入口，实践是检验"
+    description="我们围绕网络安全建立系统学习路径，并在公开竞赛、技术分享与合规的真实工程中检验能力。所有安全研究都以合法授权、明确边界与负责任披露为前提。"
+    meta="SECURITY FIRST · ENGINEERING ROOTED"
+  />
+
+  <section class="pillars section-pad">
+    <div class="shell">
+      <SectionHeading
+        eyebrow="TWO PILLARS / 两条能力主线"
+        title="在攻防思维与工程责任之间建立连接"
+      />
+      <div class="pillars__grid">
+        <article class="pillar pillar--security" data-reveal>
+          <span>01 / SECURITY</span>
+          <h2>网络安全研究</h2>
+          <p>从漏洞原理到系统分析，从个人解题到团队协作。竞赛不是终点，而是快速暴露知识盲区、检验方法和培养临场判断的高强度环境。</p>
+          <ul>
+            <li>CTF / AWD 赛事</li>
+            <li>漏洞分析与复现</li>
+            <li>公开技术分享</li>
+          </ul>
+        </article>
+        <article class="pillar pillar--engineering" data-reveal>
+          <span>02 / ENGINEERING</span>
+          <h2>数字校园实践</h2>
+          <p>真实系统要求稳定、协作、持续维护与责任意识。我们只公开经过许可的能力概述，不披露校内应用架构、接口、数据和安全细节。</p>
+          <ul>
+            <li>Web 应用开发</li>
+            <li>小程序与校园服务</li>
+            <li>运行保障意识</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="directions section-pad">
+    <div class="shell">
+      <SectionHeading
+        eyebrow="SECURITY DIRECTIONS / 安全方向"
+        title="六个入口，同一套底层能力"
+        description="分析、验证、表达与协作贯穿所有方向。成员可以从兴趣出发，在实践中逐渐建立自己的技术坐标。"
+      />
+      <div class="directions__grid">
+        {
+          security.map((entry) => (
+            <article class="direction-card" id={entry.id} data-reveal>
+              <div class="direction-card__top">
+                <span>{entry.data.index}</span>
+                <small>{entry.data.english}</small>
+              </div>
+              <div>
+                <h3>{entry.data.title}</h3>
+                <p>{entry.data.summary}</p>
+              </div>
+              <ul>
+                {entry.data.topics.map((topic) => <li>{topic}</li>)}
+              </ul>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="engineering section-pad">
+    <div class="shell engineering__grid">
+      <div>
+        <SectionHeading
+          eyebrow="BUILD FOR REAL / 工程实践"
+          title="让技术真正服务校园"
+          description="开发方向强调需求理解、代码质量、部署维护和协作交付。首版官网只展示能力分类，具体校园案例须经学校确认后公开。"
+          dark
+        />
+      </div>
+      <div class="engineering__cards">
+        {
+          engineering.map((entry) => (
+            <article id={entry.id} data-reveal>
+              <span>{entry.data.index}</span>
+              <div>
+                <p>{entry.data.english}</p>
+                <h3>{entry.data.title}</h3>
+                <small>{entry.data.summary}</small>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="method section-pad">
+    <div class="shell method__grid">
+      <div>
+        <p class="eyebrow">OUR METHOD / 学习方法</p>
+        <h2>从问题出发，经过复现，最终形成可传承的记录</h2>
+      </div>
+      <ol>
+        <li data-reveal><span>01</span><div><h3>建立基础</h3><p>学习路线提供坐标，但真正的理解来自主动提问和动手验证。</p></div></li>
+        <li data-reveal><span>02</span><div><h3>进入场景</h3><p>通过题目、比赛、公开项目和分享任务，把知识放进真实限制中。</p></div></li>
+        <li data-reveal><span>03</span><div><h3>复盘沉淀</h3><p>记录失败、选择与边界，让结果能够被复现、审阅并传递下去。</p></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="ethics">
+    <div class="shell ethics__inner" data-reveal>
+      <span>AUTHORIZED · RESPONSIBLE · REPRODUCIBLE</span>
+      <h2>技术能力始终与责任同行</h2>
+      <p>未经授权不测试，不公开敏感细节，不以“研究”为名越过法律与伦理边界。</p>
+      <a class="button button--light" href="/articles/">阅读公开技术文章</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section-pad {
+    padding: clamp(4rem, 7vw, 6.5rem) 0;
+  }
+
+  .pillars {
+    background: var(--surface);
+  }
+
+  .pillars__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 4rem;
+  }
+
+  .pillar {
+    min-height: 25rem;
+    padding: clamp(1.6rem, 4vw, 3rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+  }
+
+  .pillar > span {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+  }
+
+  .pillar h2 {
+    margin-top: 4.5rem;
+    font-size: var(--text-section);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .pillar p {
+    max-width: 34rem;
+    margin-top: 1.2rem;
+    color: var(--muted);
+    line-height: 1.85;
+  }
+
+  .pillar ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    padding: 0;
+    margin: 2rem 0 0;
+    list-style: none;
+  }
+
+  .pillar li {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+  }
+
+  .pillar--security {
+    border-color: transparent;
+    background:
+      radial-gradient(circle at 85% 10%, rgba(89, 181, 237, 0.24), transparent 16rem),
+      var(--deep);
+    color: var(--on-deep);
+  }
+
+  .pillar--security p {
+    color: var(--on-deep-muted);
+  }
+
+  .pillar--security li {
+    border-color: rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.76);
+  }
+
+  .pillar--engineering {
+    background:
+      radial-gradient(circle at 90% 8%, rgba(242, 140, 61, 0.18), transparent 15rem),
+      var(--orange-soft);
+  }
+
+  .directions {
+    background: var(--paper);
+  }
+
+  .directions__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 4rem;
+  }
+
+  .direction-card {
+    display: flex;
+    min-height: 25rem;
+    scroll-margin-top: 7rem;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface-card);
+    transition: border-color 180ms ease, transform 180ms ease;
+  }
+
+  .direction-card:hover {
+    border-color: var(--blue);
+    transform: translateY(-4px);
+  }
+
+  .direction-card__top {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.09em;
+  }
+
+  .direction-card__top span {
+    color: var(--orange);
+  }
+
+  .direction-card h3 {
+    font-size: clamp(1.25rem, 2vw, 1.55rem);
+    font-weight: 650;
+    letter-spacing: -0.018em;
+  }
+
+  .direction-card p {
+    margin-top: 0.8rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .direction-card ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding: 1.2rem 0 0;
+    border-top: 1px solid var(--line);
+    margin: 0;
+    list-style: none;
+  }
+
+  .direction-card li {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+  }
+
+  .direction-card li + li::before {
+    margin-right: 0.45rem;
+    color: var(--line-strong);
+    content: '/';
+  }
+
+  .engineering {
+    background:
+      radial-gradient(circle at 8% 90%, rgba(89, 181, 237, 0.14), transparent 24rem),
+      var(--deep);
+  }
+
+  .engineering__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 5rem;
+  }
+
+  .engineering__cards {
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+  }
+
+  .engineering__cards article {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 1rem;
+    padding: 1.7rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    color: var(--on-deep);
+  }
+
+  .engineering__cards article > span {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+  }
+
+  .engineering__cards p {
+    color: var(--blue-300);
+    font-family: var(--font-mono);
+    font-size: 0.61rem;
+    letter-spacing: 0.1em;
+  }
+
+  .engineering__cards h3 {
+    margin: 0.4rem 0 0.65rem;
+    font-size: 1.55rem;
+  }
+
+  .engineering__cards small {
+    color: var(--on-deep-muted);
+    font-size: 0.86rem;
+    line-height: 1.8;
+  }
+
+  .method {
+    background: var(--surface);
+  }
+
+  .method__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+  }
+
+  .method h2 {
+    margin-top: 1.2rem;
+    font-size: var(--text-section);
+    font-weight: 630;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.12;
+  }
+
+  .method ol {
+    padding: 0;
+    border-top: 1px solid var(--line);
+    margin: 0;
+    list-style: none;
+  }
+
+  .method li {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .method li > span {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+  }
+
+  .method h3 {
+    font-size: 1.2rem;
+  }
+
+  .method li p {
+    margin-top: 0.4rem;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .ethics {
+    padding: clamp(5rem, 9vw, 8rem) 0;
+    background: var(--blue-100);
+  }
+
+  .ethics__inner {
+    text-align: center;
+  }
+
+  .ethics span {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.13em;
+  }
+
+  .ethics h2 {
+    margin-top: 1rem;
+    color: var(--ink);
+    font-size: var(--text-section);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .ethics p {
+    max-width: 42rem;
+    margin: 1rem auto 0;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  .ethics .button {
+    margin-top: 2rem;
+    border-color: var(--action-bg);
+    background: var(--action-bg);
+    color: var(--action-text);
+  }
+
+  @media (max-width: 900px) {
+    .pillars__grid,
+    .engineering__grid,
+    .method__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .directions__grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .pillars__grid,
+    .directions__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pillar h2 {
+      margin-top: 4rem;
+    }
+  }
+</style>

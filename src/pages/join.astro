@@ -1,0 +1,609 @@
+---
+import { getEntry } from 'astro:content';
+import PageHero from '../components/PageHero.astro';
+import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const recruitmentEntry = await getEntry('recruitment', 'main');
+const siteEntry = await getEntry('siteSettings', 'main');
+if (!recruitmentEntry || !siteEntry) throw new Error('缺少纳新或站点配置');
+
+const recruitment = recruitmentEntry.data;
+const site = siteEntry.data;
+const statusMap = {
+  closed: { label: '赛程待公布', detail: '纳新交流群全年保留，具体赛程与报名安排确认后将在官网更新。' },
+  preparing: { label: '筹备中', detail: '本届纳新信息正在准备，欢迎先加入交流群并留意官网更新。' },
+  open: { label: '报名进行中', detail: '欢迎查看本页信息并加入纳新交流群。' },
+  ended: { label: '本届已结束', detail: '本届赛程虽已结束，交流群仍会保留，下一学年将统一更新届别与入口。' },
+};
+const currentStatus = statusMap[recruitment.status];
+---
+
+<BaseLayout
+  title="加入我们"
+  description="了解智邮普创工作室的培养方式、纳新要求、流程与联系方式。"
+>
+  <PageHero
+    index="07"
+    eyebrow="JOIN ZYPC / 加入我们"
+    title="出色的技术，来自持续的好奇与行动"
+    description="智邮普创工作室为学校公益实验室，不收取任何费用。每届新生由学长学姐无偿指导；我们不以专业和学院设限，更看重你解决问题的主动性与持续投入。"
+    meta="OPEN TO ALL MAJORS · FREE · AUTUMN"
+  />
+
+  <section class="status-section">
+    <div class="shell">
+      <div class:list={['status-card', `status-card--${recruitment.status}`]} data-reveal>
+        <div class="status-card__signal"><i></i><span>{recruitment.cohort} RECRUITMENT</span></div>
+        <div>
+          <p>当前状态</p>
+          <h2>{currentStatus.label}</h2>
+          <span>{currentStatus.detail}</span>
+        </div>
+        <div class="status-card__updated">
+          <span>LAST UPDATED</span>
+          <time datetime={recruitment.updatedAt.toISOString()}>
+            {new Intl.DateTimeFormat('zh-CN').format(recruitment.updatedAt)}
+          </time>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="fit section-pad">
+    <div class="shell">
+      <SectionHeading
+        eyebrow="WHAT WE VALUE / 我们看重什么"
+        title="我们不要求你已经很强，但希望你愿意认真走下去"
+      />
+      <div class="fit__grid">
+        <article data-reveal>
+          <span>01</span>
+          <h3>主动探索</h3>
+          <p>遇到陌生问题，愿意先查资料、动手验证，再带着具体过程寻求帮助。</p>
+        </article>
+        <article data-reveal>
+          <span>02</span>
+          <h3>持续投入</h3>
+          <p>安全学习没有捷径。比短期热情更重要的是能长期安排时间、完成复盘。</p>
+        </article>
+        <article data-reveal>
+          <span>03</span>
+          <h3>合作与责任</h3>
+          <p>尊重授权边界，愿意沟通、记录和分享，对自己的行为和团队结果负责。</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="training section-pad">
+    <div class="shell training__grid">
+      <div data-reveal>
+        <PhotoPlaceholder label="纳新与训练现场" index="RECRUITMENT / 01" tall />
+      </div>
+      <div>
+        <SectionHeading
+          eyebrow="GROWTH PATH / 培养路径"
+          title="从基础训练，到独立面对复杂问题"
+          description="具体安排会随每届情况调整，但基础、方向、协作与沉淀始终贯穿培养过程。"
+        />
+        <ol class="training__steps">
+          <li data-reveal><span>01</span><div><h3>基础训练</h3><p>计算机基础、网络、Linux 与编程能力。</p></div></li>
+          <li data-reveal><span>02</span><div><h3>方向探索</h3><p>通过题目与分享接触不同安全方向，找到兴趣点。</p></div></li>
+          <li data-reveal><span>03</span><div><h3>赛事协作</h3><p>进入团队训练和公开赛事，学习分工、沟通与复盘。</p></div></li>
+          <li data-reveal><span>04</span><div><h3>经验传承</h3><p>把方法写成文章、工具或课程，帮助下一届成员。</p></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="process section-pad">
+    <div class="shell">
+      <SectionHeading
+        eyebrow="RECRUITMENT FLOW / 纳新流程"
+        title="秋季新学期，面向全校大一新生"
+        description={recruitment.summary}
+      />
+      <div class="process__track">
+        <article data-reveal><span>STEP 01</span><h3>关注通知</h3><p>官网与校内渠道公布赛程、群号和报名方式。</p></article>
+        <article data-reveal><span>STEP 02</span><h3>参加纳新赛</h3><p>通过开放题目认识方向，也让我们看到你的思考过程。</p></article>
+        <article data-reveal><span>STEP 03</span><h3>阶段训练</h3><p>进入集中学习与考核，在反馈中补齐基础和方法。</p></article>
+        <article data-reveal><span>STEP 04</span><h3>成为成员</h3><p>完成阶段要求后加入团队，继续参与训练与竞赛。</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-section section-pad" id="recruitment-contact">
+    <div class="shell contact-grid">
+      <div class="contact-card contact-card--primary" data-reveal>
+        <p class="eyebrow">CONTACT / 联系方式</p>
+        <h2>{recruitment.cohort} 智邮普创纳新交流群</h2>
+        <p>{currentStatus.detail}</p>
+        <div class="recruitment-contact">
+          <img
+            src={recruitment.qrCode}
+            alt={`${recruitment.cohort} 届纳新交流群二维码`}
+            width="1284"
+            height="2283"
+            loading="lazy"
+            decoding="async"
+          />
+          <div>
+            <p><span>QQ群</span><strong>{recruitment.qqGroup}</strong></p>
+            {recruitment.deadline && <p><span>截止日期</span><strong>{new Intl.DateTimeFormat('zh-CN').format(recruitment.deadline)}</strong></p>}
+            {recruitment.applyUrl && <a class="button" href={recruitment.applyUrl} target="_blank" rel="noreferrer">前往报名 ↗</a>}
+          </div>
+        </div>
+      </div>
+      <div class="contact-card" data-reveal>
+        <p class="contact-card__label">LOCATION</p>
+        <h3>线下位置</h3>
+        <p>{site.location}</p>
+        <div class="contact-card__coordinate">WEST LIBRARY<br />FLOOR 05</div>
+      </div>
+      <div class="contact-card" data-reveal>
+        <p class="contact-card__label">ONLINE</p>
+        <h3>公开主页</h3>
+        <a href={site.github} target="_blank" rel="noreferrer">GitHub Organization ↗</a>
+        {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
+        {!site.email && <p class="contact-card__muted">公开邮箱待配置</p>}
+      </div>
+    </div>
+  </section>
+
+  <section class="faq section-pad">
+    <div class="shell faq__grid">
+      <SectionHeading
+        eyebrow="FAQ / 常见问题"
+        title="加入之前，你可能还想知道"
+      />
+      <div>
+        <details>
+          <summary>不是计算机相关专业可以参加吗？</summary>
+          <p>可以。纳新面向全校大一新生，不限学院和专业。是否愿意主动学习，比已有专业背景更重要。</p>
+        </details>
+        <details>
+          <summary>加入工作室需要缴费吗？</summary>
+          <p>不需要。工作室为学校公益实验室性质，培养和指导均不收取费用。</p>
+        </details>
+        <details>
+          <summary>完全没有安全基础怎么办？</summary>
+          <p>纳新和训练会从基础能力开始，但需要你投入足够时间，并能根据路线主动学习与复盘。</p>
+        </details>
+        <details>
+          <summary>纳新群会在赛程结束后关闭吗？</summary>
+          <p>不会从官网隐藏。当前届别的交流群会全年展示，即使本届赛程已经结束也可以先加入了解；下一学年会统一更新群号和二维码。</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .section-pad {
+    padding: clamp(4rem, 7vw, 6.5rem) 0;
+  }
+
+  .status-section {
+    padding: 2rem 0 0;
+    background: var(--surface);
+  }
+
+  .status-card {
+    display: grid;
+    grid-template-columns: 0.7fr 2fr 0.8fr;
+    align-items: center;
+    gap: 2rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xl);
+    background: var(--paper);
+  }
+
+  .status-card__signal {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.09em;
+  }
+
+  .status-card__signal i {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: var(--muted);
+    box-shadow: 0 0 0 0.4rem rgba(100, 115, 138, 0.12);
+  }
+
+  .status-card--open .status-card__signal i {
+    background: var(--success);
+    box-shadow: 0 0 0 0.4rem rgba(43, 155, 114, 0.14);
+  }
+
+  .status-card > div:nth-child(2) > p {
+    color: var(--blue-700);
+    font-size: 0.74rem;
+    font-weight: 650;
+  }
+
+  .status-card h2 {
+    margin-top: 0.2rem;
+    font-size: var(--text-section);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .status-card > div:nth-child(2) > span {
+    display: block;
+    margin-top: 0.45rem;
+    color: var(--muted);
+  }
+
+  .status-card__updated {
+    display: grid;
+    justify-items: end;
+    gap: 0.3rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+  }
+
+  .fit {
+    background: var(--surface);
+  }
+
+  .fit__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 4rem;
+  }
+
+  .fit article {
+    min-height: 20rem;
+    padding: 1.6rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--paper);
+  }
+
+  .fit article > span {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+  }
+
+  .fit h3 {
+    margin-top: 4.5rem;
+    font-size: 1.3rem;
+  }
+
+  .fit article p {
+    margin-top: 0.7rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  .training {
+    background: var(--paper);
+  }
+
+  .training__grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: center;
+    gap: clamp(3rem, 8vw, 7rem);
+  }
+
+  .training__steps {
+    padding: 0;
+    border-top: 1px solid var(--line-strong);
+    margin: 3rem 0 0;
+    list-style: none;
+  }
+
+  .training__steps li {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 1rem;
+    padding: 1.3rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .training__steps li > span {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+  }
+
+  .training__steps h3 {
+    font-size: 1.08rem;
+  }
+
+  .training__steps p {
+    margin-top: 0.35rem;
+    color: var(--muted);
+  }
+
+  .process {
+    background: var(--surface);
+  }
+
+  .process__track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 4rem;
+    border-top: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .process__track article {
+    min-height: 17rem;
+    padding: 1.5rem;
+    border-right: 1px solid var(--line);
+  }
+
+  .process__track article:last-child {
+    border-right: 0;
+  }
+
+  .process__track span {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+  }
+
+  .process__track h3 {
+    margin-top: 4rem;
+    font-size: 1.3rem;
+  }
+
+  .process__track p {
+    margin-top: 0.6rem;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .contact-section {
+    background: var(--blue-100);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr;
+    gap: 1rem;
+  }
+
+  .contact-card {
+    position: relative;
+    min-height: 18rem;
+    overflow: hidden;
+    padding: clamp(1.5rem, 3vw, 2.2rem);
+    border: 1px solid rgba(53, 129, 182, 0.18);
+    border-radius: var(--radius-xl);
+    background: var(--surface-card);
+  }
+
+  .contact-card--primary {
+    grid-row: 1 / 3;
+    min-height: 37rem;
+    background: var(--surface);
+  }
+
+  .contact-card--primary h2 {
+    max-width: 34rem;
+    margin-top: 2rem;
+    font-size: var(--text-section);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.16;
+  }
+
+  .contact-card--primary > p:not(.eyebrow) {
+    max-width: 36rem;
+    margin-top: 1rem;
+    color: var(--muted);
+  }
+
+  .contact-placeholder {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+    margin-top: 4rem;
+  }
+
+  .contact-placeholder span {
+    display: grid;
+    min-height: 8rem;
+    place-items: center;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius-md);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.61rem;
+  }
+
+  .recruitment-contact {
+    display: grid;
+    grid-template-columns: 13rem 1fr;
+    gap: 2rem;
+    margin-top: 2.5rem;
+  }
+
+  .recruitment-contact img {
+    width: 13rem;
+    border-radius: var(--radius-md);
+  }
+
+  .recruitment-contact div {
+    display: grid;
+    align-content: center;
+    gap: 1rem;
+  }
+
+  .recruitment-contact div p {
+    display: grid;
+  }
+
+  .recruitment-contact div span {
+    color: var(--muted);
+    font-size: 0.7rem;
+  }
+
+  .contact-card__label {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.1em;
+  }
+
+  .contact-card h3 {
+    margin-top: 2.2rem;
+    font-size: 1.5rem;
+  }
+
+  .contact-card > p:not(.contact-card__label) {
+    max-width: 21rem;
+    margin-top: 0.6rem;
+    color: var(--muted);
+  }
+
+  .contact-card > a {
+    display: block;
+    width: fit-content;
+    margin-top: 0.7rem;
+    color: var(--blue-700);
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .contact-card__coordinate {
+    position: absolute;
+    right: -0.5rem;
+    bottom: -0.5rem;
+    color: rgba(39, 127, 187, 0.08);
+    font-family: var(--font-mono);
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 0.9;
+    text-align: right;
+  }
+
+  .contact-card__muted {
+    font-size: 0.8rem;
+  }
+
+  .faq {
+    background: var(--surface);
+  }
+
+  .faq__grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(3rem, 8vw, 7rem);
+  }
+
+  .faq details {
+    padding: 1.3rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .faq details:first-child {
+    border-top: 1px solid var(--line);
+  }
+
+  .faq summary {
+    position: relative;
+    padding-right: 2rem;
+    color: var(--ink);
+    font-weight: 650;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq summary::after {
+    position: absolute;
+    top: 0;
+    right: 0.2rem;
+    color: var(--blue-700);
+    content: '+';
+  }
+
+  .faq details[open] summary::after {
+    content: '−';
+  }
+
+  .faq details p {
+    max-width: 39rem;
+    padding-top: 0.9rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 880px) {
+    .status-card,
+    .training__grid,
+    .faq__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .status-card__updated {
+      justify-items: start;
+    }
+
+    .fit__grid,
+    .process__track {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .process__track article:nth-child(2) {
+      border-right: 0;
+    }
+
+    .process__track article:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .contact-card--primary {
+      grid-row: auto;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .fit__grid,
+    .process__track,
+    .contact-placeholder {
+      grid-template-columns: 1fr;
+    }
+
+    .process__track article {
+      min-height: auto;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .process__track article:last-child {
+      border-bottom: 0;
+    }
+
+    .process__track h3 {
+      margin-top: 2rem;
+    }
+
+    .recruitment-contact {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "openharmony-ctf-2025",
+    "year": 2025,
+    "month": 6,
+    "competition": "OpenHarmony CTF 预赛",
+    "award": "晋级决赛",
+    "rank": "全国第 11 名",
+    "members": ["Am0unt", "Wald", "TUTo", "Yogurt"],
+    "track": "CTF"
+  },
+  {
+    "id": "pangu-stone-cup-2025",
+    "year": 2025,
+    "month": 6,
+    "competition": "第三届“盘古石杯”全国电子数据取证大赛",
+    "award": "全国二等奖",
+    "rank": "全国第 14 名",
+    "members": ["k1sme4", "g0ubu1i", "Mingyi"],
+    "track": "电子数据取证",
+    "writeupUrl": "https://zypc-sec.github.io/"
+  },
+  {
+    "id": "software-innovation-security-2025",
+    "year": 2025,
+    "month": 5,
+    "competition": "第十八届全国大学生软件创新大赛·软件系统安全赛",
+    "award": "两项全国二等奖",
+    "members": ["k1sme4", "fault", "Wald", "TUTo", "auto"],
+    "track": "软件系统安全"
+  },
+  {
+    "id": "great-wall-cup-2025",
+    "year": 2025,
+    "month": 4,
+    "competition": "第二届“长城杯”信息安全铁人三项赛决赛",
+    "award": "全国三等奖",
+    "rank": "全国第 50 名",
+    "members": ["g0ubu1i", "Wald", "Mingyi", "dmw"],
+    "track": "综合安全"
+  }
+]

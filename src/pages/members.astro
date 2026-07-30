@@ -1,0 +1,487 @@
+---
+import { getCollection } from 'astro:content';
+import PageHero from '../components/PageHero.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const members = (await getCollection('members')).sort((a, b) => a.data.order - b.data.order);
+const cohorts = [...new Set(members.map((member) => member.data.cohort))];
+const directions = [...new Set(members.flatMap((member) => member.data.directions))];
+
+const groups = [
+  {
+    key: 'mentor',
+    label: '导师',
+    english: 'MENTORS',
+    description: '提供方向指导与团队支持。首版资料等待实验室确认后补充。',
+  },
+  {
+    key: 'current',
+    label: '现役成员',
+    english: 'CURRENT MEMBERS',
+    description: '仍活跃在学习、竞赛和技术实践第一线的成员。',
+  },
+  {
+    key: 'alumni',
+    label: '往届成员',
+    english: 'ALUMNI',
+    description: '成员会毕业，经验与影响继续留在团队中。',
+  },
+] as const;
+---
+
+<BaseLayout
+  title="团队成员"
+  description="认识智邮普创工作室的导师、现役成员与往届成员。"
+>
+  <PageHero
+    index="04"
+    eyebrow="PEOPLE OF ZYPC / 团队成员"
+    title="技术因人而生，也由人传承"
+    description="这里优先展示安全昵称、加入年份、研究方向和公开技术主页。真实姓名、私人联系方式与未经授权的头像不会默认公开。"
+    meta="MENTORS · CURRENT MEMBERS · ALUMNI"
+  />
+
+  <section class="directory section-pad">
+    <div class="shell">
+      <div class="directory__intro">
+        <SectionHeading
+          eyebrow="MEMBER DIRECTORY / 成员名录"
+          title="找到同方向的伙伴"
+          description="首版成员均为明确标注的结构占位，后续在 members.json 中逐条替换即可。"
+        />
+        <p class="directory__count" aria-live="polite"><strong data-result-count>{members.length}</strong> 条记录</p>
+      </div>
+
+      <div class="filters" aria-label="成员筛选">
+        <div class="filter-group">
+          <span>身份</span>
+          <div>
+            <button class="is-active" type="button" data-filter="status" data-value="all">全部</button>
+            <button type="button" data-filter="status" data-value="mentor">导师</button>
+            <button type="button" data-filter="status" data-value="current">现役</button>
+            <button type="button" data-filter="status" data-value="alumni">往届</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span>届别</span>
+          <div>
+            <button class="is-active" type="button" data-filter="cohort" data-value="all">全部</button>
+            {cohorts.map((cohort) => <button type="button" data-filter="cohort" data-value={cohort}>{cohort}</button>)}
+          </div>
+        </div>
+        <div class="filter-group">
+          <span>方向</span>
+          <div>
+            <button class="is-active" type="button" data-filter="direction" data-value="all">全部</button>
+            {directions.map((direction) => <button type="button" data-filter="direction" data-value={direction}>{direction}</button>)}
+          </div>
+        </div>
+      </div>
+
+      <div class="member-groups">
+        {
+          groups.map((group) => {
+            const entries = members.filter((member) => member.data.status === group.key);
+            return (
+              <section class="member-group" data-member-group={group.key}>
+                <header>
+                  <div>
+                    <p>{group.english}</p>
+                    <h2>{group.label}</h2>
+                  </div>
+                  <p>{group.description}</p>
+                </header>
+                <div class="member-grid">
+                  {entries.map((member) => (
+                    <article
+                      class:list={['member-card', { 'member-card--placeholder': member.data.placeholder }]}
+                      data-member-card
+                      data-status={member.data.status}
+                      data-cohort={member.data.cohort}
+                      data-directions={member.data.directions.join('|')}
+                    >
+                      <div class="member-card__avatar" aria-hidden="true">
+                        {member.data.avatar ? (
+                          <img src={member.data.avatar} alt="" width="180" height="180" loading="lazy" />
+                        ) : (
+                          <span>{member.data.placeholder ? '?' : member.data.nickname.slice(0, 1).toUpperCase()}</span>
+                        )}
+                      </div>
+                      <div class="member-card__meta">
+                        <span>{member.data.cohort}</span>
+                        {member.data.placeholder && <span>占位资料</span>}
+                      </div>
+                      <h3>{member.data.nickname}</h3>
+                      <ul>
+                        {member.data.directions.map((direction) => <li>{direction}</li>)}
+                      </ul>
+                      <div class="member-card__links">
+                        {member.data.blog && <a href={member.data.blog} target="_blank" rel="noreferrer">Blog ↗</a>}
+                        {member.data.github && <a href={member.data.github} target="_blank" rel="noreferrer">GitHub ↗</a>}
+                        {!member.data.blog && !member.data.github && <span>公开主页待补充</span>}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            );
+          })
+        }
+      </div>
+      <p class="empty-state directory__empty" data-member-empty hidden>没有符合当前筛选条件的成员资料。</p>
+    </div>
+  </section>
+
+  <section class="privacy-note">
+    <div class="shell privacy-note__inner" data-reveal>
+      <span>PRIVACY BY DEFAULT</span>
+      <h2>公开是一种选择，不是默认要求</h2>
+      <p>成员可自行决定是否展示头像、博客和 GitHub；真实姓名与私人联系方式只在获得明确授权后公开。</p>
+      <a class="button button--light" href="/join/">了解如何加入</a>
+    </div>
+  </section>
+
+  <script>
+    const state = { status: 'all', cohort: 'all', direction: 'all' };
+    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+    const cards = document.querySelectorAll<HTMLElement>('[data-member-card]');
+    const groups = document.querySelectorAll<HTMLElement>('[data-member-group]');
+    const result = document.querySelector<HTMLElement>('[data-result-count]');
+    const empty = document.querySelector<HTMLElement>('[data-member-empty]');
+
+    const applyFilters = () => {
+      let visible = 0;
+      cards.forEach((card) => {
+        const directions = (card.dataset.directions ?? '').split('|');
+        const matches =
+          (state.status === 'all' || card.dataset.status === state.status) &&
+          (state.cohort === 'all' || card.dataset.cohort === state.cohort) &&
+          (state.direction === 'all' || directions.includes(state.direction));
+        card.hidden = !matches;
+        if (matches) visible += 1;
+      });
+
+      groups.forEach((group) => {
+        const hasVisibleCards = [...group.querySelectorAll<HTMLElement>('[data-member-card]')]
+          .some((card) => !card.hidden);
+        group.hidden = !hasVisibleCards;
+      });
+
+      if (result) result.textContent = String(visible);
+      if (empty) empty.hidden = visible !== 0;
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter as keyof typeof state;
+        if (!filter) return;
+        state[filter] = button.dataset.value ?? 'all';
+        document.querySelectorAll(`[data-filter="${filter}"]`).forEach((candidate) => {
+          candidate.classList.toggle('is-active', candidate === button);
+        });
+        applyFilters();
+      });
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  .section-pad {
+    padding: clamp(4rem, 7vw, 6.5rem) 0;
+  }
+
+  .directory {
+    background: var(--surface);
+  }
+
+  .directory__intro {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .directory__count {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+  }
+
+  .directory__count strong {
+    color: var(--blue-700);
+    font-size: 1.15rem;
+  }
+
+  .filters {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 3rem;
+    padding: 1.25rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--paper);
+  }
+
+  .filter-group {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    align-items: start;
+    gap: 1rem;
+  }
+
+  .filter-group > span {
+    padding-top: 0.45rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.1em;
+  }
+
+  .filter-group div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .filter-group button {
+    padding: 0.4rem 0.7rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 0.76rem;
+    cursor: pointer;
+  }
+
+  .filter-group button:hover {
+    border-color: var(--line-strong);
+    background: var(--surface);
+  }
+
+  .filter-group button.is-active {
+    border-color: var(--action-bg);
+    background: var(--action-bg);
+    color: var(--action-text);
+  }
+
+  .member-groups {
+    display: grid;
+    gap: 5rem;
+    margin-top: 5rem;
+  }
+
+  .member-group > header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: end;
+    gap: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .member-group > header div > p {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    letter-spacing: 0.11em;
+  }
+
+  .member-group > header h2 {
+    margin-top: 0.35rem;
+    font-size: var(--text-section);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .member-group > header > p {
+    max-width: 32rem;
+    justify-self: end;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .member-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .member-card {
+    display: flex;
+    min-height: 25rem;
+    flex-direction: column;
+    padding: 1.2rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    transition: border-color 180ms ease, transform 180ms ease;
+  }
+
+  .member-card:hover {
+    border-color: var(--blue);
+    transform: translateY(-4px);
+  }
+
+  .member-card[hidden],
+  .member-group[hidden] {
+    display: none;
+  }
+
+  .member-card__avatar {
+    display: grid;
+    aspect-ratio: 1.35;
+    overflow: hidden;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background:
+      radial-gradient(circle at 75% 20%, rgba(242, 140, 61, 0.24), transparent 7rem),
+      var(--blue-50);
+  }
+
+  .member-card__avatar span {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 2.25rem;
+    font-weight: 700;
+  }
+
+  .member-card__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .member-card__meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.61rem;
+    letter-spacing: 0.08em;
+  }
+
+  .member-card__meta span:last-child {
+    color: var(--orange);
+  }
+
+  .member-card h3 {
+    margin-top: 0.55rem;
+    font-size: 1.3rem;
+    font-weight: 650;
+  }
+
+  .member-card ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 0.8rem 0 0;
+    list-style: none;
+  }
+
+  .member-card li {
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    background: var(--blue-50);
+    color: var(--blue-700);
+    font-size: 0.68rem;
+  }
+
+  .member-card__links {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+  }
+
+  .member-card__links a {
+    color: var(--blue-700);
+    text-decoration: none;
+  }
+
+  .member-card--placeholder {
+    border-style: dashed;
+    background: var(--surface-card);
+  }
+
+  .directory__empty {
+    margin-top: 3rem;
+  }
+
+  .directory__empty[hidden] {
+    display: none;
+  }
+
+  .privacy-note {
+    padding: clamp(5rem, 10vw, 9rem) 0;
+    background: var(--deep);
+    color: var(--on-deep);
+  }
+
+  .privacy-note__inner {
+    text-align: center;
+  }
+
+  .privacy-note span {
+    color: var(--blue-300);
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+  }
+
+  .privacy-note h2 {
+    margin-top: 1rem;
+    font-size: var(--text-section);
+    font-weight: 650;
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .privacy-note p {
+    max-width: 43rem;
+    margin: 1rem auto 0;
+    color: var(--on-deep-muted);
+    line-height: 1.8;
+  }
+
+  .privacy-note .button {
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 900px) {
+    .member-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .directory__intro {
+      align-items: start;
+      flex-direction: column;
+    }
+
+    .filter-group {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+
+    .member-group > header {
+      grid-template-columns: 1fr;
+    }
+
+    .member-group > header > p {
+      justify-self: start;
+    }
+
+    .member-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
