@@ -7,6 +7,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const articles = (await getCollection('articles'))
   .filter((entry) => !entry.data.draft)
   .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
+const publishedArticles = articles.filter((article) => !article.data.sample);
+const sampleArticles = articles.filter((article) => article.data.sample);
 const categories = [...new Set(articles.map((article) => article.data.category))];
 const years = [...new Set(articles.map((article) => article.data.publishedAt.getFullYear()))];
 ---
@@ -16,7 +18,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
   description="智邮普创工作室的团队动态、技术文章、赛事复盘与纳新公告。"
 >
   <PageHero
-    index="06"
+    index="05"
     eyebrow="ARTICLES / 文章与复盘"
     title="把过程写清楚，让经验留下来"
     description="这里收录团队动态、公开技术文章、赛事复盘和纳新公告。文章内容只涉及可公开信息，不披露校内系统与未经授权的安全细节。"
@@ -25,7 +27,16 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
 
   <section class="article-directory">
     <div class="shell article-directory__layout">
-      <aside class="article-sidebar">
+      <button
+        class="article-filter-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="article-filter-panel"
+        data-article-filter-toggle
+      >
+        <span>搜索与筛选</span><span aria-hidden="true">＋</span>
+      </button>
+      <aside class="article-sidebar" id="article-filter-panel" data-article-filter-panel>
         <div class="search-box">
           <label for="article-search">搜索文章</label>
           <div>
@@ -35,12 +46,12 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
         </div>
         <div class="article-sidebar__group">
           <p>CATEGORY / 分类</p>
-          <button class="is-active" type="button" data-category-filter="all">
+          <button class="is-active" type="button" aria-pressed="true" data-category-filter="all">
             <span>全部文章</span><small>{articles.length}</small>
           </button>
           {
             categories.map((category) => (
-              <button type="button" data-category-filter={category}>
+              <button type="button" aria-pressed="false" data-category-filter={category}>
                 <span>{category}</span>
                 <small>{articles.filter((article) => article.data.category === category).length}</small>
               </button>
@@ -51,7 +62,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
           <p>ARCHIVE / 归档</p>
           {
             years.map((year) => (
-              <button type="button" data-year-filter={String(year)}>
+              <button type="button" aria-pressed="false" data-year-filter={String(year)}>
                 <span>{year}</span>
                 <small>{articles.filter((article) => article.data.publishedAt.getFullYear() === year).length}</small>
               </button>
@@ -61,7 +72,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
         <a class="rss-link" href="/rss.xml">
           <span>RSS</span>
           <div><strong>订阅文章更新</strong><small>无需社交平台算法</small></div>
-          <i aria-hidden="true">↗</i>
+          <i aria-hidden="true">→</i>
         </a>
       </aside>
 
@@ -71,25 +82,51 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
             <p>PUBLIC ARCHIVE</p>
             <h2>全部文章</h2>
           </div>
-          <p><strong data-article-count>{articles.length}</strong> 篇</p>
+          <p aria-live="polite"><strong data-article-count>{articles.length}</strong> 篇</p>
         </header>
-        <div class="article-grid">
-          {
-            articles.map((article, index) => (
-              <ArticleCard
-                id={article.id}
-                title={article.data.title}
-                description={article.data.description}
-                category={article.data.category}
-                tags={article.data.tags}
-                author={article.data.author}
-                publishedAt={article.data.publishedAt}
-                sample={article.data.sample}
-                featured={index === 0}
-              />
-            ))
-          }
-        </div>
+        <section class="article-section" data-article-section>
+          <h3>最新内容</h3>
+          <div class="article-grid">
+            {
+              publishedArticles.map((article, index) => (
+                <ArticleCard
+                  id={article.id}
+                  title={article.data.title}
+                  description={article.data.description}
+                  category={article.data.category}
+                  tags={article.data.tags}
+                  author={article.data.author}
+                  publishedAt={article.data.publishedAt}
+                  featured={index === 0}
+                />
+              ))
+            }
+          </div>
+        </section>
+        {
+          sampleArticles.length > 0 && (
+            <section class="article-section article-section--samples" data-article-section>
+              <div class="article-section__heading">
+                <h3>模板与示例</h3>
+                <p>用于统一团队记录结构，不代表当前活动正在进行。</p>
+              </div>
+              <div class="article-grid">
+                {sampleArticles.map((article) => (
+                  <ArticleCard
+                    id={article.id}
+                    title={article.data.title}
+                    description={article.data.description}
+                    category={article.data.category}
+                    tags={article.data.tags}
+                    author={article.data.author}
+                    publishedAt={article.data.publishedAt}
+                    sample
+                  />
+                ))}
+              </div>
+            </section>
+          )
+        }
         <p class="empty-state article-empty" data-article-empty hidden>没有找到匹配的文章，换个关键词或分类试试。</p>
       </div>
     </div>
@@ -102,6 +139,9 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     const yearButtons = document.querySelectorAll<HTMLButtonElement>('[data-year-filter]');
     const count = document.querySelector<HTMLElement>('[data-article-count]');
     const empty = document.querySelector<HTMLElement>('[data-article-empty]');
+    const sections = document.querySelectorAll<HTMLElement>('[data-article-section]');
+    const filterToggle = document.querySelector<HTMLButtonElement>('[data-article-filter-toggle]');
+    const filterPanel = document.querySelector<HTMLElement>('[data-article-filter-panel]');
     let category = 'all';
     let year = 'all';
 
@@ -125,6 +165,11 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
         card.hidden = !matches;
         if (matches) visible += 1;
       });
+      sections.forEach((section) => {
+        const hasVisibleCard = [...section.querySelectorAll<HTMLElement>('[data-article-card]')]
+          .some((card) => !card.hidden);
+        section.hidden = !hasVisibleCard;
+      });
       if (count) count.textContent = String(visible);
       if (empty) empty.hidden = visible !== 0;
     };
@@ -133,7 +178,11 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     categoryButtons.forEach((button) => {
       button.addEventListener('click', () => {
         category = button.dataset.categoryFilter ?? 'all';
-        categoryButtons.forEach((candidate) => candidate.classList.toggle('is-active', candidate === button));
+        categoryButtons.forEach((candidate) => {
+          const active = candidate === button;
+          candidate.classList.toggle('is-active', active);
+          candidate.setAttribute('aria-pressed', String(active));
+        });
         apply();
       });
     });
@@ -141,16 +190,28 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
       button.addEventListener('click', () => {
         const selected = button.dataset.yearFilter ?? 'all';
         year = year === selected ? 'all' : selected;
-        yearButtons.forEach((candidate) => candidate.classList.toggle('is-active', year === candidate.dataset.yearFilter));
+        yearButtons.forEach((candidate) => {
+          const active = year === candidate.dataset.yearFilter;
+          candidate.classList.toggle('is-active', active);
+          candidate.setAttribute('aria-pressed', String(active));
+        });
         apply();
       });
+    });
+
+    filterToggle?.addEventListener('click', () => {
+      const open = filterToggle.getAttribute('aria-expanded') === 'true';
+      filterToggle.setAttribute('aria-expanded', String(!open));
+      filterPanel?.classList.toggle('is-open', !open);
+      const icon = filterToggle.lastElementChild;
+      if (icon) icon.textContent = open ? '＋' : '−';
     });
   </script>
 </BaseLayout>
 
 <style>
   .article-directory {
-    padding: clamp(3.5rem, 6vw, 5.5rem) 0;
+    padding: var(--space-section) 0;
     background: var(--surface);
   }
 
@@ -159,6 +220,10 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     grid-template-columns: 15rem minmax(0, 1fr);
     align-items: start;
     gap: clamp(3rem, 7vw, 6rem);
+  }
+
+  .article-filter-toggle {
+    display: none;
   }
 
   .article-sidebar {
@@ -173,7 +238,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     margin-bottom: 0.55rem;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.1em;
   }
 
@@ -189,7 +254,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     border-radius: var(--radius-sm);
     background: var(--paper);
     color: var(--ink);
-    font-size: 0.82rem;
+    font-size: var(--text-small);
   }
 
   .search-box div > span {
@@ -209,7 +274,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     margin-bottom: 0.4rem;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.1em;
   }
 
@@ -217,12 +282,13 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     display: flex;
     align-items: center;
     justify-content: space-between;
+    min-height: 2.75rem;
     padding: 0.55rem 0.7rem;
     border: 0;
     border-radius: 0.55rem;
     background: transparent;
     color: var(--ink-soft);
-    font-size: 0.78rem;
+    font-size: var(--text-small);
     text-align: left;
     cursor: pointer;
   }
@@ -236,7 +302,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
   .article-sidebar__group small {
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: var(--text-meta);
   }
 
   .rss-link {
@@ -260,7 +326,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     background: var(--orange);
     color: var(--action-text);
     font-family: var(--font-mono);
-    font-size: 0.6rem;
+    font-size: var(--text-meta);
   }
 
   .rss-link div {
@@ -268,12 +334,12 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
   }
 
   .rss-link strong {
-    font-size: 0.76rem;
+    font-size: var(--text-small);
   }
 
   .rss-link small {
     color: var(--muted);
-    font-size: 0.62rem;
+    font-size: var(--text-meta);
   }
 
   .rss-link i {
@@ -292,7 +358,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
   .article-results > header div p {
     color: var(--blue-700);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.1em;
   }
 
@@ -306,7 +372,7 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
   .article-results > header > p {
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: var(--text-meta);
   }
 
   .article-results > header strong {
@@ -319,6 +385,33 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
     margin-top: 1rem;
+  }
+
+  .article-section {
+    margin-top: 1.5rem;
+  }
+
+  .article-section[hidden] {
+    display: none;
+  }
+
+  .article-section > h3,
+  .article-section__heading h3 {
+    font-size: 1.15rem;
+  }
+
+  .article-section__heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .article-section__heading p {
+    color: var(--muted);
+    font-size: var(--text-small);
   }
 
   :global(.article-grid [data-article-card][hidden]) {
@@ -338,9 +431,32 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
       grid-template-columns: 1fr;
     }
 
+    .article-filter-toggle {
+      display: flex;
+      min-height: 3rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: var(--paper);
+      color: var(--ink);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .article-sidebar {
       position: static;
+      display: none;
       grid-template-columns: 1fr 1fr;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: var(--paper);
+    }
+
+    .article-sidebar.is-open {
+      display: grid;
     }
 
     .search-box,
@@ -361,6 +477,11 @@ const years = [...new Set(articles.map((article) => article.data.publishedAt.get
 
     .article-grid {
       grid-template-columns: 1fr;
+    }
+
+    .article-section__heading {
+      align-items: flex-start;
+      flex-direction: column;
     }
   }
 </style>

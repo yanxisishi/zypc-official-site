@@ -49,19 +49,6 @@ const honors = defineCollection({
   }),
 });
 
-const research = defineCollection({
-  loader: file('./src/data/research.json'),
-  schema: z.object({
-    id: z.string(),
-    index: z.string(),
-    title: z.string(),
-    english: z.string(),
-    summary: z.string(),
-    category: z.enum(['security', 'engineering']),
-    topics: z.array(z.string()),
-  }),
-});
-
 const siteSettings = defineCollection({
   loader: file('./src/data/site.json'),
   schema: z.object({
@@ -96,7 +83,6 @@ export const collections = {
   articles,
   members,
   honors,
-  research,
   siteSettings,
   recruitment,
 };

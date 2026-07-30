@@ -1,43 +1,37 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
 import LogoMark from '../components/LogoMark.astro';
+import RecruitmentContact from '../components/RecruitmentContact.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import '../styles/home.css';
 
-const articles = (await getCollection('articles'))
+const allArticles = (await getCollection('articles'))
   .filter((entry) => !entry.data.draft)
-  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
-  .slice(0, 3);
+  .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
+const articles = allArticles.filter((entry) => !entry.data.sample).slice(0, 3);
+const honors = await getCollection('honors');
 
 const recruitmentEntry = await getEntry('recruitment', 'main');
-if (!recruitmentEntry) throw new Error('缺少纳新配置 src/data/recruitment.json');
+const siteEntry = await getEntry('siteSettings', 'main');
+if (!recruitmentEntry || !siteEntry) throw new Error('缺少纳新或站点配置');
 const recruitment = recruitmentEntry.data;
-const recruitmentTitle = `${recruitment.cohort} 智邮普创纳新交流群`;
+const site = siteEntry.data;
 
-const portals = [
+const facts = [
   {
-    index: '01',
-    href: '/about/',
-    title: '关于我们',
-    description: '团队背景与成长路径',
+    value: String(site.founded),
+    label: '成立年份',
+    detail: '持续在真实校园场景中实践',
   },
   {
-    index: '02',
-    href: '/research/',
-    title: '研究方向',
-    description: '安全研究与工程实践',
+    value: String(honors.length),
+    label: '已核实赛场记录',
+    detail: '公开记录仍在持续整理',
   },
   {
-    index: '03',
-    href: '/honors/',
-    title: '荣誉成果',
-    description: '竞赛经历与团队成果',
-  },
-  {
-    index: '04',
-    href: '/members/',
-    title: '团队成员',
-    description: '现役与往届成员',
+    value: '5F',
+    label: '长安校区西区图书馆',
+    detail: '实验室线下位置',
   },
 ];
 
@@ -62,37 +56,14 @@ const formatDate = (date: Date) =>
           <p class="home-intro__description">
             西安邮电大学信息中心学生技术团队，专注数字校园实践与网络安全研究。
           </p>
-          <div class="home-recruitment">
-            <a
-              class="home-recruitment__main"
-              href="/join/#recruitment-contact"
-              aria-haspopup="dialog"
-              data-recruitment-open
-            >
-              <LogoMark size="small" />
-              <span class="home-recruitment__copy">
-                <strong>{recruitment.cohort} 纳新交流群</strong>
-                <small>QQ群：{recruitment.qqGroup}</small>
-              </span>
-              <span class="home-recruitment__hint">查看二维码 <i aria-hidden="true">↗</i></span>
-            </a>
-            <button
-              class="home-recruitment__copy-button"
-              type="button"
-              aria-label={`复制 QQ 群号 ${recruitment.qqGroup}`}
-              data-copy-group={recruitment.qqGroup}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="8" y="8" width="11" height="11" rx="2"></rect>
-                <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
-              </svg>
-              <span>复制</span>
-            </button>
-            <span class="sr-only" aria-live="polite" data-copy-status></span>
-          </div>
+          <RecruitmentContact
+            cohort={recruitment.cohort}
+            qqGroup={recruitment.qqGroup}
+            qrCode={recruitment.qrCode}
+            status={recruitment.status}
+          />
           <div class="home-intro__actions">
-            <a class="button" href="/about/">了解团队 <span aria-hidden="true">↗</span></a>
-            <a class="button button--ghost" href="/join/">加入我们</a>
+            <a class="button" href="/about/">了解团队 <span aria-hidden="true">→</span></a>
           </div>
         </div>
 
@@ -102,27 +73,22 @@ const formatDate = (date: Date) =>
             <i></i>
           </div>
           <LogoMark size="hero" alt="智邮普创工作室 Logo" />
-          <div class="home-intro__location">
-            <span>CHANG'AN CAMPUS</span>
-            <strong>WEST LIBRARY · 5F</strong>
-          </div>
         </div>
       </div>
 
-      <nav class="home-portals" aria-label="首页主要入口" data-reveal>
+      <dl class="home-facts" aria-label="团队概况" data-reveal>
         {
-          portals.map((portal) => (
-            <a href={portal.href}>
-              <span class="home-portals__index">{portal.index}</span>
-              <span class="home-portals__text">
-                <strong>{portal.title}</strong>
-                <small>{portal.description}</small>
-              </span>
-              <i aria-hidden="true">↗</i>
-            </a>
+          facts.map((fact) => (
+            <div>
+              <dt>
+                <strong>{fact.value}</strong>
+                <span>{fact.label}</span>
+              </dt>
+              <dd>{fact.detail}</dd>
+            </div>
           ))
         }
-      </nav>
+      </dl>
 
       <section class="home-updates" aria-labelledby="latest-title" data-reveal>
         <header class="home-updates__heading">
@@ -130,7 +96,7 @@ const formatDate = (date: Date) =>
             <p>RECENT / 最近更新</p>
             <h2 id="latest-title">团队记录</h2>
           </div>
-          <a href="/articles/">全部文章 <span aria-hidden="true">↗</span></a>
+          <a href="/articles/">全部文章 <span aria-hidden="true">→</span></a>
         </header>
         <div class="home-updates__list">
           {
@@ -150,101 +116,4 @@ const formatDate = (date: Date) =>
       </section>
     </div>
   </section>
-
-  <dialog class="recruitment-dialog" aria-labelledby="recruitment-dialog-title" data-recruitment-dialog>
-    <div class="recruitment-dialog__header">
-      <div>
-        <p>RECRUITMENT / 纳新交流群</p>
-        <h2 id="recruitment-dialog-title">{recruitmentTitle}</h2>
-      </div>
-      <form method="dialog">
-        <button type="submit" aria-label="关闭二维码弹窗">
-          <span aria-hidden="true">×</span>
-        </button>
-      </form>
-    </div>
-    <div class="recruitment-dialog__content">
-      <div class="recruitment-dialog__image">
-        <img
-          src={recruitment.qrCode}
-          width="1284"
-          height="2283"
-          loading="lazy"
-          decoding="async"
-          alt={`${recruitmentTitle}二维码，QQ群号 ${recruitment.qqGroup}`}
-        />
-      </div>
-      <div class="recruitment-dialog__details">
-        <LogoMark size="medium" />
-        <p>扫码加入当届纳新交流群。群入口全年保留，具体赛程与报名安排以当届公告为准。</p>
-        <div>
-          <span>QQ GROUP</span>
-          <strong>{recruitment.qqGroup}</strong>
-        </div>
-        <button class="button" type="button" data-copy-group={recruitment.qqGroup}>
-          <span>复制群号</span>
-        </button>
-        <a href="/join/">查看完整纳新说明 <span aria-hidden="true">↗</span></a>
-      </div>
-    </div>
-  </dialog>
-  <script>
-    const recruitmentDialog = document.querySelector<HTMLDialogElement>('[data-recruitment-dialog]');
-    const recruitmentOpeners = document.querySelectorAll<HTMLAnchorElement>('[data-recruitment-open]');
-    const copyButtons = document.querySelectorAll<HTMLButtonElement>('[data-copy-group]');
-    const copyStatus = document.querySelector<HTMLElement>('[data-copy-status]');
-
-    recruitmentOpeners.forEach((opener) => {
-      opener.addEventListener('click', (event) => {
-        if (!recruitmentDialog?.showModal) return;
-        event.preventDefault();
-        recruitmentDialog.showModal();
-        document.body.classList.add('dialog-open');
-      });
-    });
-
-    recruitmentDialog?.addEventListener('close', () => {
-      document.body.classList.remove('dialog-open');
-    });
-
-    recruitmentDialog?.addEventListener('click', (event) => {
-      if (event.target === recruitmentDialog) recruitmentDialog.close();
-    });
-
-    const fallbackCopy = (value: string) => {
-      const textarea = document.createElement('textarea');
-      textarea.value = value;
-      textarea.setAttribute('readonly', '');
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.append(textarea);
-      textarea.select();
-      const legacyDocument = document as unknown as { execCommand: (command: string) => boolean };
-      const copied = legacyDocument.execCommand('copy');
-      textarea.remove();
-      return copied;
-    };
-
-    copyButtons.forEach((button) => {
-      button.addEventListener('click', async () => {
-        const group = button.dataset.copyGroup;
-        if (!group) return;
-        let copied = false;
-        try {
-          await navigator.clipboard.writeText(group);
-          copied = true;
-        } catch {
-          copied = fallbackCopy(group);
-        }
-
-        const label = button.querySelector('span');
-        const originalLabel = label?.textContent;
-        if (label) label.textContent = copied ? '已复制' : '复制失败';
-        if (copyStatus) copyStatus.textContent = copied ? `QQ群号 ${group} 已复制` : '复制失败，请手动复制群号';
-        window.setTimeout(() => {
-          if (label && originalLabel) label.textContent = originalLabel;
-        }, 1600);
-      });
-    });
-  </script>
 </BaseLayout>

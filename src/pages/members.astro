@@ -5,15 +5,18 @@ import SectionHeading from '../components/SectionHeading.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const members = (await getCollection('members')).sort((a, b) => a.data.order - b.data.order);
-const cohorts = [...new Set(members.map((member) => member.data.cohort))];
-const directions = [...new Set(members.flatMap((member) => member.data.directions))];
+const publicMembers = members.filter((member) => !member.data.placeholder);
+const statuses = [...new Set(publicMembers.map((member) => member.data.status))];
+const cohorts = [...new Set(publicMembers.map((member) => member.data.cohort))];
+const directions = [...new Set(publicMembers.flatMap((member) => member.data.directions))];
+const showFilters = statuses.length > 1 || cohorts.length > 1 || directions.length > 1;
 
 const groups = [
   {
     key: 'mentor',
     label: '导师',
     english: 'MENTORS',
-    description: '提供方向指导与团队支持。首版资料等待实验室确认后补充。',
+    description: '提供方向指导与团队支持，资料会在获得授权后逐步公开。',
   },
   {
     key: 'current',
@@ -35,7 +38,7 @@ const groups = [
   description="认识智邮普创工作室的导师、现役成员与往届成员。"
 >
   <PageHero
-    index="04"
+    index="03"
     eyebrow="PEOPLE OF ZYPC / 团队成员"
     title="技术因人而生，也由人传承"
     description="这里优先展示安全昵称、加入年份、研究方向和公开技术主页。真实姓名、私人联系方式与未经授权的头像不会默认公开。"
@@ -48,43 +51,61 @@ const groups = [
         <SectionHeading
           eyebrow="MEMBER DIRECTORY / 成员名录"
           title="找到同方向的伙伴"
-          description="首版成员均为明确标注的结构占位，后续在 members.json 中逐条替换即可。"
+          description="成员资料会在获得本人授权后逐步补充，当前先保留清晰、克制的结构骨架。"
         />
-        <p class="directory__count" aria-live="polite"><strong data-result-count>{members.length}</strong> 条记录</p>
+        {
+          publicMembers.length > 0 ? (
+            <p class="directory__count" aria-live="polite">
+              <strong data-result-count>{publicMembers.length}</strong> 位公开成员
+            </p>
+          ) : (
+            <p class="directory__pending">资料整理中</p>
+          )
+        }
       </div>
 
-      <div class="filters" aria-label="成员筛选">
-        <div class="filter-group">
-          <span>身份</span>
-          <div>
-            <button class="is-active" type="button" data-filter="status" data-value="all">全部</button>
-            <button type="button" data-filter="status" data-value="mentor">导师</button>
-            <button type="button" data-filter="status" data-value="current">现役</button>
-            <button type="button" data-filter="status" data-value="alumni">往届</button>
+      {
+        showFilters && (
+          <div class="filters" aria-label="成员筛选">
+            {statuses.length > 1 && (
+              <div class="filter-group">
+                <span>身份</span>
+                <div>
+                  <button class="is-active" type="button" aria-pressed="true" data-filter="status" data-value="all">全部</button>
+                  <button type="button" aria-pressed="false" data-filter="status" data-value="mentor">导师</button>
+                  <button type="button" aria-pressed="false" data-filter="status" data-value="current">现役</button>
+                  <button type="button" aria-pressed="false" data-filter="status" data-value="alumni">往届</button>
+                </div>
+              </div>
+            )}
+            {cohorts.length > 1 && (
+              <div class="filter-group">
+                <span>届别</span>
+                <div>
+                  <button class="is-active" type="button" aria-pressed="true" data-filter="cohort" data-value="all">全部</button>
+                  {cohorts.map((cohort) => <button type="button" aria-pressed="false" data-filter="cohort" data-value={cohort}>{cohort}</button>)}
+                </div>
+              </div>
+            )}
+            {directions.length > 1 && (
+              <div class="filter-group">
+                <span>方向</span>
+                <div>
+                  <button class="is-active" type="button" aria-pressed="true" data-filter="direction" data-value="all">全部</button>
+                  {directions.map((direction) => <button type="button" aria-pressed="false" data-filter="direction" data-value={direction}>{direction}</button>)}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-        <div class="filter-group">
-          <span>届别</span>
-          <div>
-            <button class="is-active" type="button" data-filter="cohort" data-value="all">全部</button>
-            {cohorts.map((cohort) => <button type="button" data-filter="cohort" data-value={cohort}>{cohort}</button>)}
-          </div>
-        </div>
-        <div class="filter-group">
-          <span>方向</span>
-          <div>
-            <button class="is-active" type="button" data-filter="direction" data-value="all">全部</button>
-            {directions.map((direction) => <button type="button" data-filter="direction" data-value={direction}>{direction}</button>)}
-          </div>
-        </div>
-      </div>
+        )
+      }
 
       <div class="member-groups">
         {
           groups.map((group) => {
             const entries = members.filter((member) => member.data.status === group.key);
             return (
-              <section class="member-group" data-member-group={group.key}>
+              <section class:list={['member-group', { 'member-group--sparse': entries.length < 3 }]} data-member-group={group.key}>
                 <header>
                   <div>
                     <p>{group.english}</p>
@@ -105,7 +126,7 @@ const groups = [
                         {member.data.avatar ? (
                           <img src={member.data.avatar} alt="" width="180" height="180" loading="lazy" />
                         ) : (
-                          <span>{member.data.placeholder ? '?' : member.data.nickname.slice(0, 1).toUpperCase()}</span>
+                          <span>{member.data.placeholder ? 'ZYPC' : member.data.nickname.slice(0, 1).toUpperCase()}</span>
                         )}
                       </div>
                       <div class="member-card__meta">
@@ -119,7 +140,7 @@ const groups = [
                       <div class="member-card__links">
                         {member.data.blog && <a href={member.data.blog} target="_blank" rel="noreferrer">Blog ↗</a>}
                         {member.data.github && <a href={member.data.github} target="_blank" rel="noreferrer">GitHub ↗</a>}
-                        {!member.data.blog && !member.data.github && <span>公开主页待补充</span>}
+                        {!member.data.blog && !member.data.github && <span>公开资料将按授权补充</span>}
                       </div>
                     </article>
                   ))}
@@ -145,7 +166,7 @@ const groups = [
   <script>
     const state = { status: 'all', cohort: 'all', direction: 'all' };
     const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
-    const cards = document.querySelectorAll<HTMLElement>('[data-member-card]');
+    const cards = document.querySelectorAll<HTMLElement>('[data-member-card]:not(.member-card--placeholder)');
     const groups = document.querySelectorAll<HTMLElement>('[data-member-group]');
     const result = document.querySelector<HTMLElement>('[data-result-count]');
     const empty = document.querySelector<HTMLElement>('[data-member-empty]');
@@ -178,7 +199,9 @@ const groups = [
         if (!filter) return;
         state[filter] = button.dataset.value ?? 'all';
         document.querySelectorAll(`[data-filter="${filter}"]`).forEach((candidate) => {
-          candidate.classList.toggle('is-active', candidate === button);
+          const active = candidate === button;
+          candidate.classList.toggle('is-active', active);
+          candidate.setAttribute('aria-pressed', String(active));
         });
         applyFilters();
       });
@@ -188,7 +211,7 @@ const groups = [
 
 <style>
   .section-pad {
-    padding: clamp(4rem, 7vw, 6.5rem) 0;
+    padding: var(--space-section) 0;
   }
 
   .directory {
@@ -206,12 +229,23 @@ const groups = [
     flex: 0 0 auto;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: var(--text-meta);
   }
 
   .directory__count strong {
     color: var(--blue-700);
     font-size: 1.15rem;
+  }
+
+  .directory__pending {
+    flex: 0 0 auto;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--paper);
+    color: var(--blue-700);
+    font-size: var(--text-small);
+    font-weight: 700;
   }
 
   .filters {
@@ -235,7 +269,7 @@ const groups = [
     padding-top: 0.45rem;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.63rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.1em;
   }
 
@@ -246,12 +280,13 @@ const groups = [
   }
 
   .filter-group button {
-    padding: 0.4rem 0.7rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.8rem;
     border: 1px solid transparent;
     border-radius: 999px;
     background: transparent;
     color: var(--ink-soft);
-    font-size: 0.76rem;
+    font-size: var(--text-small);
     cursor: pointer;
   }
 
@@ -268,8 +303,8 @@ const groups = [
 
   .member-groups {
     display: grid;
-    gap: 5rem;
-    margin-top: 5rem;
+    gap: 3.5rem;
+    margin-top: 3.75rem;
   }
 
   .member-group > header {
@@ -284,7 +319,7 @@ const groups = [
   .member-group > header div > p {
     color: var(--blue-700);
     font-family: var(--font-mono);
-    font-size: 0.63rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.11em;
   }
 
@@ -309,9 +344,12 @@ const groups = [
     margin-top: 1rem;
   }
 
+  .member-group--sparse .member-grid {
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 20rem));
+  }
+
   .member-card {
     display: flex;
-    min-height: 25rem;
     flex-direction: column;
     padding: 1.2rem;
     border: 1px solid var(--line);
@@ -332,7 +370,7 @@ const groups = [
 
   .member-card__avatar {
     display: grid;
-    aspect-ratio: 1.35;
+    aspect-ratio: 1.8;
     overflow: hidden;
     place-items: center;
     border-radius: var(--radius-md);
@@ -344,7 +382,7 @@ const groups = [
   .member-card__avatar span {
     color: var(--blue-700);
     font-family: var(--font-mono);
-    font-size: 2.25rem;
+    font-size: 1rem;
     font-weight: 700;
   }
 
@@ -360,7 +398,7 @@ const groups = [
     margin-top: 1rem;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.61rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.08em;
   }
 
@@ -370,7 +408,7 @@ const groups = [
 
   .member-card h3 {
     margin-top: 0.55rem;
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     font-weight: 650;
   }
 
@@ -388,7 +426,7 @@ const groups = [
     border-radius: 999px;
     background: var(--blue-50);
     color: var(--blue-700);
-    font-size: 0.68rem;
+    font-size: 0.8125rem;
   }
 
   .member-card__links {
@@ -399,7 +437,7 @@ const groups = [
     border-top: 1px solid var(--line);
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.65rem;
+    font-size: var(--text-meta);
   }
 
   .member-card__links a {
@@ -421,7 +459,7 @@ const groups = [
   }
 
   .privacy-note {
-    padding: clamp(5rem, 10vw, 9rem) 0;
+    padding: var(--space-section) 0;
     background: var(--deep);
     color: var(--on-deep);
   }
@@ -433,7 +471,7 @@ const groups = [
   .privacy-note span {
     color: var(--blue-300);
     font-family: var(--font-mono);
-    font-size: 0.64rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.12em;
   }
 

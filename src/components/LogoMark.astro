@@ -8,7 +8,14 @@ const { size = 'medium', alt = '' } = Astro.props;
 ---
 
 <span class:list={['logo-mark', `logo-mark--${size}`]}>
-  <img src="/brand/logo-transparent.png" width="968" height="968" alt={alt} />
+  <img
+    src="/brand/logo-640.png"
+    srcset="/brand/logo-96.png 96w, /brand/logo-640.png 640w, /brand/logo-transparent.png 968w"
+    sizes={size === 'hero' ? '(max-width: 760px) 152px, 304px' : '48px'}
+    width="968"
+    height="968"
+    alt={alt}
+  />
 </span>
 
 <style>

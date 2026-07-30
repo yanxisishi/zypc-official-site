@@ -39,15 +39,15 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
     <h3>{title}</h3>
     <p>{description}</p>
     <div class="article-card__footer">
-      <span>{sample ? '示例内容' : author}</span>
-      <span class="article-card__arrow" aria-hidden="true">↗</span>
+      <span>{sample ? '模板示例' : author}</span>
+      <span class="article-card__arrow" aria-hidden="true">→</span>
     </div>
   </a>
 </article>
 
 <style>
   .article-card {
-    min-height: 17rem;
+    min-height: 15rem;
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     background: var(--surface-card);
@@ -77,7 +77,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
     gap: 1rem;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.67rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.08em;
   }
 

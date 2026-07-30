@@ -3,7 +3,6 @@ import { getCollection } from 'astro:content';
 const staticRoutes = [
   '/',
   '/about/',
-  '/research/',
   '/members/',
   '/honors/',
   '/articles/',

@@ -24,7 +24,6 @@ npm run preview
 - 文章：`src/content/articles/`
 - 成员：`src/data/members.json`
 - 荣誉：`src/data/honors.json`
-- 研究方向：`src/data/research.json`
 - 常驻纳新群、二维码与阶段状态：`src/data/recruitment.json`
 - 团队名称、地点、邮箱：`src/data/site.json`
 - 图片：`public/images/`

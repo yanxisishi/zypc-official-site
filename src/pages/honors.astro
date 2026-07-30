@@ -12,10 +12,10 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
 
 <BaseLayout
   title="荣誉成果"
-  description="智邮普创工作室在 CTF、电子数据取证与软件系统安全等赛事中的竞赛记录。"
+  description="智邮普创工作室已确认的竞赛记录与团队成果。"
 >
   <PageHero
-    index="05"
+    index="04"
     eyebrow="HONORS / 竞赛荣誉"
     title="每一次交锋，都是能力坐标"
     description="荣誉页只记录经过确认的比赛、名次与参赛成员。排名不是学习的唯一尺度，但它忠实记录了团队在特定时间、特定赛场上的共同努力。"
@@ -28,15 +28,25 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
         <SectionHeading
           eyebrow="COMPETITION ARCHIVE / 赛事档案"
           title="按年份回看我们的赛场记录"
-          description="首版已迁移旧站中确认正确的 2025 年记录，后续可继续从 honors.json 添加。"
+          description="这里整理已确认的公开赛场记录，新的比赛与复盘会在核实后持续补充。"
         />
-        <p><strong data-honor-count>{honors.length}</strong> 条记录</p>
+        <p aria-live="polite"><strong data-honor-count>{honors.length}</strong> 条记录</p>
       </div>
 
-      <div class="year-filter" aria-label="按年份筛选荣誉">
-        <button class="is-active" type="button" data-year-filter="all">全部年份</button>
-        {years.map((year) => <button type="button" data-year-filter={String(year)}>{year}</button>)}
-      </div>
+      {
+        years.length > 1 && (
+          <div class="year-filter" aria-label="按年份筛选荣誉">
+            <button class="is-active" type="button" data-year-filter="all" aria-pressed="true">
+              全部年份
+            </button>
+            {years.map((year) => (
+              <button type="button" data-year-filter={String(year)} aria-pressed="false">
+                {year}
+              </button>
+            ))}
+          </div>
+        )
+      }
 
       <div class="honor-list">
         {
@@ -97,7 +107,11 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
       button.addEventListener('click', () => {
         const year = button.dataset.yearFilter ?? 'all';
         let visible = 0;
-        buttons.forEach((candidate) => candidate.classList.toggle('is-active', candidate === button));
+        buttons.forEach((candidate) => {
+          const active = candidate === button;
+          candidate.classList.toggle('is-active', active);
+          candidate.setAttribute('aria-pressed', String(active));
+        });
         cards.forEach((card) => {
           const matches = year === 'all' || card.dataset.year === year;
           card.hidden = !matches;
@@ -112,7 +126,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
 
 <style>
   .section-pad {
-    padding: clamp(4rem, 7vw, 6.5rem) 0;
+    padding: var(--space-section) 0;
   }
 
   .honors {
@@ -130,7 +144,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
     flex: 0 0 auto;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: var(--text-meta);
   }
 
   .honors__heading strong {
@@ -146,12 +160,13 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
   }
 
   .year-filter button {
+    min-height: 2.75rem;
     padding: 0.55rem 0.85rem;
     border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--paper);
     color: var(--ink-soft);
-    font-size: 0.76rem;
+    font-size: var(--text-meta);
     cursor: pointer;
   }
 
@@ -174,7 +189,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
     display: grid;
     grid-template-columns: 3rem 7rem minmax(0, 1.7fr) minmax(13rem, 0.8fr);
     gap: clamp(1rem, 3vw, 2.5rem);
-    padding: 2.3rem 0;
+    padding: 1.75rem 0;
     border-bottom: 1px solid var(--line);
   }
 
@@ -185,7 +200,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
   .honor-card__number {
     color: var(--orange);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: var(--text-meta);
   }
 
   .honor-card__date {
@@ -204,7 +219,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
   .honor-card__members > p {
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.57rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.09em;
   }
 
@@ -219,7 +234,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
     background: var(--blue-50);
     color: var(--blue-700);
     font-family: var(--font-mono);
-    font-size: 0.57rem;
+    font-size: var(--text-meta);
   }
 
   .honor-card__tags span:last-child {
@@ -251,7 +266,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
 
   .honor-card__result span {
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: var(--text-small);
   }
 
   .honor-card__members ul {
@@ -266,7 +281,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
   .honor-card__members li {
     color: var(--ink-soft);
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: var(--text-small);
   }
 
   .honor-card__members li + li::before {
@@ -280,7 +295,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
     gap: 0.4rem;
     margin-top: 1.25rem;
     color: var(--blue-700);
-    font-size: 0.76rem;
+    font-size: var(--text-meta);
     font-weight: 650;
     text-decoration: none;
   }
@@ -294,7 +309,7 @@ const years = [...new Set(honors.map((honor) => honor.data.year))];
   }
 
   .honor-note {
-    padding: clamp(5rem, 9vw, 8rem) 0;
+    padding: var(--space-section) 0;
     background: var(--deep);
     color: var(--on-deep);
   }

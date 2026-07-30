@@ -48,7 +48,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
         <div>
           {article.data.tags.map((tag) => <span>#{tag}</span>)}
         </div>
-        <a href="/rss.xml">订阅 RSS ↗</a>
+        <a href="/rss.xml">订阅 RSS →</a>
       </aside>
       <div class="prose">
         <Content />
@@ -70,7 +70,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
   .article-hero {
     position: relative;
     overflow: hidden;
-    padding: 7.5rem 0 4rem;
+    padding: 7rem 0 3.5rem;
     background: var(--paper);
   }
 
@@ -92,7 +92,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
     display: inline-flex;
     margin-bottom: 3.5rem;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: var(--text-small);
     text-decoration: none;
   }
 
@@ -110,7 +110,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
     border-radius: 999px;
     background: var(--blue-100);
     color: var(--blue-700);
-    font-size: 0.7rem;
+    font-size: var(--text-meta);
     font-weight: 650;
   }
 
@@ -145,7 +145,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
     border-top: 1px solid var(--line);
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.64rem;
+    font-size: var(--text-meta);
   }
 
   .article-body {
@@ -153,8 +153,8 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
     grid-template-columns: 13rem minmax(0, 48rem);
     justify-content: center;
     gap: clamp(2rem, 7vw, 6rem);
-    padding-top: clamp(4rem, 8vw, 7rem);
-    padding-bottom: clamp(5rem, 9vw, 9rem);
+    padding-top: var(--space-section);
+    padding-bottom: var(--space-section);
   }
 
   .article-aside {
@@ -169,7 +169,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
     margin: 0.8rem 0;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.61rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.1em;
   }
 
@@ -181,7 +181,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
 
   .article-aside div span {
     color: var(--blue-700);
-    font-size: 0.68rem;
+    font-size: var(--text-meta);
   }
 
   .article-aside a {
@@ -189,13 +189,14 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
     width: fit-content;
     margin-top: 1.5rem;
     color: var(--ink);
-    font-size: 0.74rem;
+    min-height: 2.75rem;
+    font-size: var(--text-small);
     font-weight: 650;
     text-decoration: none;
   }
 
   .article-footer {
-    padding: clamp(4rem, 8vw, 7rem) 0;
+    padding: var(--space-section) 0;
     background: var(--deep);
     color: var(--on-deep);
   }
@@ -210,7 +211,7 @@ const formattedDate = new Intl.DateTimeFormat('zh-CN', {
   .article-footer span {
     color: var(--blue-300);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.11em;
   }
 

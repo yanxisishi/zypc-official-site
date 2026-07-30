@@ -29,7 +29,6 @@ const currentPath = Astro.url.pathname;
 const navItems = [
   { href: '/', label: '首页' },
   { href: '/about/', label: '关于' },
-  { href: '/research/', label: '研究与实践' },
   { href: '/members/', label: '成员' },
   { href: '/honors/', label: '荣誉' },
   { href: '/articles/', label: '文章' },
@@ -79,7 +78,6 @@ const isActive = (href: string) =>
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary" />
     <title>{fullTitle}</title>
-    <script is:inline>document.documentElement.classList.add('js');</script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">跳到主要内容</a>
@@ -110,7 +108,7 @@ const isActive = (href: string) =>
             <i aria-hidden="true"></i>
           </a>
         </div>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-menu-toggle>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="打开导航菜单" data-menu-toggle>
           <span class="sr-only">打开导航菜单</span>
           <i></i><i></i>
         </button>
@@ -125,16 +123,16 @@ const isActive = (href: string) =>
           <Brand light />
           <p>在真实问题中学习，在持续实践中成长。</p>
         </div>
-        <div class="site-footer__column">
+        <div class="site-footer__column site-footer__column--location">
           <p class="site-footer__title">LOCATION</p>
           <p>{settings.location}</p>
-          <p>Xi'an University of Posts and Telecommunications</p>
+          <p class="site-footer__location-en">Xi'an University of Posts and Telecommunications</p>
         </div>
-        <div class="site-footer__column">
+        <div class="site-footer__column site-footer__column--links">
           <p class="site-footer__title">LINKS</p>
           <a href={settings.github} target="_blank" rel="noreferrer">GitHub Organization ↗</a>
-          <a href="/rss.xml">RSS Feed ↗</a>
-          <a href="/join/">加入我们 ↗</a>
+          <a href="/rss.xml">RSS Feed →</a>
+          <a href="/join/">加入我们 →</a>
         </div>
       </div>
       <div class="shell site-footer__bottom">
@@ -182,31 +180,58 @@ const isActive = (href: string) =>
 
       applyTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
 
-      const toggle = document.querySelector('[data-menu-toggle]');
-      const nav = document.querySelector('[data-site-nav]');
+      const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+      const nav = document.querySelector<HTMLElement>('[data-site-nav]');
       const header = document.querySelector('[data-site-header]');
+      const menuLabel = toggle?.querySelector<HTMLElement>('.sr-only');
+
+      const setMenuOpen = (open: boolean, restoreFocus = false) => {
+        if (!toggle || !nav) return;
+        const label = open ? '关闭导航菜单' : '打开导航菜单';
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.setAttribute('aria-label', label);
+        if (menuLabel) menuLabel.textContent = label;
+        nav.classList.toggle('is-open', open);
+        document.body.classList.toggle('menu-open', open);
+        if (!open && restoreFocus) toggle.focus();
+      };
 
       toggle?.addEventListener('click', () => {
         const open = toggle.getAttribute('aria-expanded') === 'true';
-        toggle.setAttribute('aria-expanded', String(!open));
-        nav?.classList.toggle('is-open', !open);
-        document.body.classList.toggle('menu-open', !open);
+        setMenuOpen(!open);
       });
 
       nav?.querySelectorAll('a').forEach((link) => {
         link.addEventListener('click', () => {
-          toggle?.setAttribute('aria-expanded', 'false');
-          nav?.classList.remove('is-open');
-          document.body.classList.remove('menu-open');
+          setMenuOpen(false);
         });
+      });
+
+      document.addEventListener('click', (event) => {
+        if (toggle?.getAttribute('aria-expanded') !== 'true') return;
+        const target = event.target;
+        if (!(target instanceof Node)) return;
+        if (toggle.contains(target) || nav?.contains(target)) return;
+        setMenuOpen(false);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+          setMenuOpen(false, true);
+        }
       });
 
       const updateHeader = () => header?.classList.toggle('is-scrolled', window.scrollY > 16);
       updateHeader();
       window.addEventListener('scroll', updateHeader, { passive: true });
 
-      const revealTargets = document.querySelectorAll('[data-reveal]');
-      if ('IntersectionObserver' in window) {
+      const revealTargets = [...document.querySelectorAll<HTMLElement>('[data-reveal]')];
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if ('IntersectionObserver' in window && !reduceMotion) {
+        revealTargets
+          .filter((target) => target.getBoundingClientRect().top <= window.innerHeight + 120)
+          .forEach((target) => target.classList.add('is-visible'));
+        document.documentElement.classList.add('reveal-ready');
         const observer = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -214,7 +239,7 @@ const isActive = (href: string) =>
               observer.unobserve(entry.target);
             }
           });
-        }, { threshold: 0.12 });
+        }, { threshold: 0.01, rootMargin: '0px 0px 120px 0px' });
         revealTargets.forEach((target) => observer.observe(target));
       } else {
         revealTargets.forEach((target) => target.classList.add('is-visible'));

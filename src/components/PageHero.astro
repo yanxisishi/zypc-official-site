@@ -32,7 +32,7 @@ const { index, eyebrow, title, description, meta } = Astro.props;
   .page-hero {
     position: relative;
     overflow: hidden;
-    padding: clamp(6rem, 9vw, 7.5rem) 0 clamp(3.5rem, 6vw, 5rem);
+    padding: clamp(6rem, 8vw, 7rem) 0 clamp(3rem, 5vw, 4.25rem);
     border-bottom: 1px solid var(--line);
     background:
       radial-gradient(circle at 86% 20%, rgba(91, 180, 235, 0.15), transparent 24rem),
@@ -60,7 +60,7 @@ const { index, eyebrow, title, description, meta } = Astro.props;
     align-self: start;
     color: var(--orange);
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: var(--text-meta);
     font-weight: 750;
     letter-spacing: 0.14em;
   }
@@ -79,7 +79,7 @@ const { index, eyebrow, title, description, meta } = Astro.props;
     max-width: 45rem;
     margin: 1.6rem 0 0;
     color: var(--muted);
-    font-size: 1rem;
+    font-size: var(--text-body);
     line-height: 1.8;
   }
 
@@ -92,7 +92,7 @@ const { index, eyebrow, title, description, meta } = Astro.props;
     background: var(--surface-subtle);
     color: var(--ink-soft);
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.08em;
   }
 
@@ -103,7 +103,7 @@ const { index, eyebrow, title, description, meta } = Astro.props;
     width: 11rem;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: 0.61rem;
+    font-size: var(--text-meta);
     letter-spacing: 0.11em;
     text-align: right;
   }
@@ -135,7 +135,7 @@ const { index, eyebrow, title, description, meta } = Astro.props;
     }
 
     .page-hero__number {
-      margin-bottom: 2rem;
+      margin-bottom: 1.25rem;
     }
   }
 </style>
