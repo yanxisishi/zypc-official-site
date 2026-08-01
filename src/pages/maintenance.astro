@@ -1,0 +1,448 @@
+---
+import CodeBlock from '../components/CodeBlock.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const pageLinks = [
+  { id: 'start', label: '本地运行' },
+  { id: 'structure', label: '内容位置' },
+  { id: 'articles', label: '文章维护' },
+  { id: 'records', label: '成员与荣誉' },
+  { id: 'settings', label: '站点信息' },
+  { id: 'assets', label: '静态资源' },
+  { id: 'release', label: '检查与发布' },
+  { id: 'handoff', label: '安全与交接' },
+];
+
+const commands = [
+  ['npm run dev', '启动本地开发服务器并自动刷新'],
+  ['npm run check', '检查 Astro、TypeScript 和内容字段'],
+  ['npm run build', '构建生产版本到 dist/'],
+  ['npm run preview', '本地预览已经构建的生产版本'],
+  ['npm run new:article -- article-slug "文章标题"', '创建一篇文章草稿'],
+];
+
+const contentPaths = [
+  ['src/content/articles/', 'Markdown 文章正文与 Frontmatter'],
+  ['src/data/members.ts', '成员届别、昵称、方向和公开联系方式'],
+  ['src/data/honors.ts', '竞赛荣誉、排名、成员和公开链接'],
+  ['src/data/recruitment.json', '微信公众号名称和纳新 QQ 群号'],
+  ['src/data/site.json', '团队名称、简介、地点、GitHub 和公开邮箱'],
+  ['src/pages/', '页面结构和页面专属样式'],
+  ['src/components/', '多个页面共用的组件'],
+  ['src/styles/', '全局样式、主题变量和首页样式'],
+  ['public/images/', '文章、团队和页面使用的图片'],
+  ['public/downloads/', '需要公开下载的 PDF 等文件'],
+];
+
+const articleFields = [
+  ['title', '文章标题'],
+  ['description', '列表页和搜索使用的摘要，至少十个字'],
+  ['publishedAt', '发布日期，格式为 YYYY-MM-DD'],
+  ['updatedAt', '可选；文章有重要更新时填写'],
+  ['category', '团队动态、技术文章、赛事复盘或纳新公告'],
+  ['tags', '标签数组，列表页最多显示三个'],
+  ['author', '作者昵称或“智邮普创工作室”'],
+  ['draft', 'true 时不进入文章列表、RSS 和 Sitemap'],
+  ['cover', '可选；public 目录下资源对应的站内路径'],
+];
+
+const installCode = `npm install
+npm run dev`;
+const newArticleCode = `npm run new:article -- article-slug "文章标题"`;
+const memberCode = `{
+  nickname: '昵称',
+  sitenick: 'web',
+  title: '页面显示名称',
+  directions: ['Web 安全'],
+  avatar: '/images/members/example.webp',
+  qq: '公开 QQ 号',
+  github: 'GitHub 用户名',
+  blog: 'https://example.com/',
+}`;
+const honorCode = `{
+  month: 10,
+  competition: '比赛全称',
+  award: '全国二等奖',
+  rank: '全国第 12 名',
+  track: 'CTF',
+  members: ['成员昵称'],
+  url: 'https://example.com/writeup',
+}`;
+const recruitmentCode = `[
+  {
+    "id": "main",
+    "qqGroup": "1057111048",
+    "wechatAccount": "智邮普创实验室"
+  }
+]`;
+const verifyCode = `npm run check
+npm run build`;
+const gitCode = `git status
+git diff
+git add <本次修改的文件>
+git commit -m "说明本次修改"
+git push`;
+const deployCode = `npm ci --no-audit --no-fund
+npm run check
+npm run build`;
+---
+
+<BaseLayout
+  title="维护文档"
+  description="智邮普创工作室官网的本地运行、内容更新、构建发布与交接说明。"
+>
+  <main class="maintenance-page">
+    <article class="maintenance-document" aria-labelledby="maintenance-title">
+      <header class="maintenance-header">
+        <p class="maintenance-kicker">MAINTENANCE / 维护文档</p>
+        <h1 id="maintenance-title">网站维护说明</h1>
+        <p>
+          官网基于 Astro 构建并输出纯静态文件。文章、成员、荣誉和联系方式都直接保存在仓库中，不需要数据库或后台管理系统。
+        </p>
+      </header>
+
+      <nav class="maintenance-nav" aria-label="维护文档目录">
+        {pageLinks.map((item) => <a href={`#${item.id}`}>{item.label}</a>)}
+      </nav>
+
+      <section id="start" aria-labelledby="start-title">
+        <h2 id="start-title">环境与本地运行</h2>
+        <p>建议使用 Node.js 22 LTS 和随 Node.js 安装的 npm。首次运行先安装依赖：</p>
+        <CodeBlock code={installCode} language="bash" />
+        <p>浏览器打开 <code>http://localhost:4321/</code>。开始修改前先执行 <code>git status</code>，避免覆盖其他维护者尚未提交的内容。</p>
+        <dl class="document-list">
+          {commands.map(([command, use]) => (
+            <div><dt><code>{command}</code></dt><dd>{use}</dd></div>
+          ))}
+        </dl>
+      </section>
+
+      <section id="structure" aria-labelledby="structure-title">
+        <h2 id="structure-title">项目结构与内容位置</h2>
+        <p>普通内容更新主要集中在以下文件，不需要修改构建产物：</p>
+        <dl class="document-list">
+          {contentPaths.map(([path, use]) => (
+            <div><dt><code>{path}</code></dt><dd>{use}</dd></div>
+          ))}
+        </dl>
+        <p><strong>不要直接修改 <code>dist/</code>。</strong>该目录由构建命令重新生成，手工改动会在下次构建时丢失。</p>
+      </section>
+
+      <section id="articles" aria-labelledby="articles-title">
+        <h2 id="articles-title">新建与更新文章</h2>
+        <p>使用脚本创建文章草稿：</p>
+        <CodeBlock code={newArticleCode} language="bash" />
+        <p>
+          <code>article-slug</code> 只能包含小写字母、数字和连字符，并会成为文章 URL 的一部分。已有文章不要随意改名，否则原链接会失效。
+        </p>
+        <p>Frontmatter 的常用字段如下：</p>
+        <dl class="document-list document-list--fields">
+          {articleFields.map(([name, use]) => (
+            <div><dt><code>{name}</code></dt><dd>{use}</dd></div>
+          ))}
+        </dl>
+        <p>
+          完成正文并检查后，将 <code>draft</code> 改为 <code>false</code>。文章字数会在构建时自动计算；封面不是必填项，没有合适图片时保留纯文字卡片即可。
+        </p>
+        <p>文章封面放入 <code>public/images/articles/</code>，并在 <code>cover</code> 中填写以 <code>/images/</code> 开头的站内路径。</p>
+      </section>
+
+      <section id="records" aria-labelledby="records-title">
+        <h2 id="records-title">更新成员与荣誉</h2>
+
+        <h3>成员</h3>
+        <p>编辑 <code>src/data/members.ts</code>，在对应届别的 <code>entries</code> 数组中追加成员：</p>
+        <CodeBlock code={memberCode} language="ts" />
+        <p><code>avatar</code>、<code>qq</code>、<code>github</code> 和 <code>blog</code> 都可以省略。新增届别时复制完整年份分组。</p>
+
+        <h3>荣誉</h3>
+        <p>编辑 <code>src/data/honors.ts</code>，在对应年份的 <code>entries</code> 数组中追加记录：</p>
+        <CodeBlock code={honorCode} language="ts" />
+        <p><code>rank</code>、<code>members</code> 和 <code>url</code> 可以省略。页面会按年份和月份倒序显示，发布前必须核实记录。</p>
+      </section>
+
+      <section id="settings" aria-labelledby="settings-title">
+        <h2 id="settings-title">联系方式与站点信息</h2>
+        <ul>
+          <li><code>src/data/recruitment.json</code>：维护公众号名称和纳新 QQ 群号。</li>
+          <li><code>src/data/site.json</code>：维护团队名称、简介、地点、GitHub 和可选邮箱。</li>
+          <li><code>src/pages/join.astro</code>：维护安全组流程、准备建议、开发组说明和常见问题。</li>
+        </ul>
+        <CodeBlock code={recruitmentCode} language="json" />
+        <p>
+          加入页面不维护报名状态、截止日期、倒计时或二维码。开发组资料没有确认前，不要自行补写技术栈和选拔流程。
+        </p>
+      </section>
+
+      <section id="assets" aria-labelledby="assets-title">
+        <h2 id="assets-title">图片、PDF 与静态资源</h2>
+        <ul>
+          <li><code>public/images/articles/example/cover.webp</code> 发布后对应 <code>/images/articles/example/cover.webp</code>。</li>
+          <li><code>public/downloads/example.pdf</code> 发布后对应 <code>/downloads/example.pdf</code>。</li>
+          <li>历年面试题原 PDF 位于 <code>public/downloads/interviews/</code>，文件名与加入页面的下载链接对应。</li>
+        </ul>
+        <p>图片应先压缩，照片优先使用 WebP。不要提交无关原图、临时截图或包含未授权个人信息的文件。</p>
+      </section>
+
+      <section id="release" aria-labelledby="release-title">
+        <h2 id="release-title">检查、构建与发布</h2>
+        <p>每次提交前至少运行：</p>
+        <CodeBlock code={verifyCode} language="bash" />
+        <p>涉及页面结构或样式时，还要检查桌面端、移动端、浅色与深色主题、键盘焦点、页面跳转和横向溢出。</p>
+        <p>确认无误后查看改动范围并提交：</p>
+        <CodeBlock code={gitCode} language="bash" />
+
+        <h3>部署</h3>
+        <p>部署平台安装锁定依赖、完成检查与构建，然后只发布 <code>dist/</code>：</p>
+        <CodeBlock code={deployCode} language="bash" />
+        <p>
+          Nginx 或静态托管平台不要暴露仓库根目录、<code>.git</code> 或源码。正式部署前应把 <code>astro.config.mjs</code> 中的 <code>site</code> 改为实际域名，确保 RSS 和 Sitemap 地址正确。
+        </p>
+      </section>
+
+      <section id="handoff" aria-labelledby="handoff-title">
+        <h2 id="handoff-title">安全与交接</h2>
+        <ul>
+          <li>不要把密码、私钥、Cookie、Webhook 密钥或服务器凭据写进仓库。</li>
+          <li>不要随意删除或重命名已有文章和公开资源，避免旧链接失效。</li>
+          <li>公开成员资料、文章署名和照片前确认授权，必要时使用昵称和打码图片。</li>
+          <li>通过平台成员权限交接仓库、域名和部署服务，不在聊天记录中发送私钥。</li>
+          <li>说明未发布草稿、待确认资料、部署方式和当前未提交修改。</li>
+          <li>交接前让下一位维护者独立完成一次本地启动、内容修改、检查和构建。</li>
+        </ul>
+      </section>
+    </article>
+  </main>
+
+  <script>
+    document.querySelectorAll<HTMLElement>('[data-maintenance-code]').forEach((block) => {
+      if (block.dataset.copyReady === 'true') return;
+
+      const button = block.querySelector<HTMLButtonElement>('.code-copy-button');
+      const code = block.querySelector<HTMLElement>('pre code');
+      const languageLabel = button?.querySelector<HTMLElement>('.code-copy-button__language');
+      const actionLabel = button?.querySelector<HTMLElement>('.code-copy-button__action');
+      if (!button || !code || !languageLabel || !actionLabel) return;
+
+      block.dataset.copyReady = 'true';
+      const language = languageLabel.textContent?.trim() || 'text';
+      let resetTimer = 0;
+
+      button.addEventListener('click', async () => {
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable');
+          await navigator.clipboard.writeText(code.textContent ?? '');
+          button.dataset.copyState = 'copied';
+          button.setAttribute('aria-label', `${language} 代码已复制`);
+          actionLabel.textContent = '已复制';
+        } catch {
+          button.dataset.copyState = 'failed';
+          button.setAttribute('aria-label', `${language} 代码复制失败`);
+          actionLabel.textContent = '复制失败';
+        }
+
+        window.clearTimeout(resetTimer);
+        resetTimer = window.setTimeout(() => {
+          delete button.dataset.copyState;
+          button.setAttribute('aria-label', `复制 ${language} 代码`);
+          actionLabel.textContent = '复制';
+        }, 1600);
+      });
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  .maintenance-page {
+    min-height: 100svh;
+  }
+
+  .maintenance-document {
+    width: min(calc(100% - 2rem), 68rem);
+    padding: 7.5rem 0 6rem;
+    margin: 0 auto;
+    color: var(--ink);
+  }
+
+  .maintenance-header {
+    max-width: 62rem;
+  }
+
+  .maintenance-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+  }
+
+  .maintenance-kicker::before {
+    width: 1.45rem;
+    height: 1px;
+    background: currentColor;
+    content: '';
+  }
+
+  .maintenance-header h1 {
+    margin-top: 0.75rem;
+    font-size: clamp(1.8rem, 2.5vw, 2rem);
+    font-weight: 680;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+  }
+
+  .maintenance-header > p:last-child {
+    max-width: 58rem;
+    margin-top: 1rem;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+    line-height: 1.85;
+  }
+
+  .maintenance-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.3rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin-top: 2.25rem;
+  }
+
+  .maintenance-nav a {
+    color: var(--muted);
+    font-size: var(--text-small);
+    text-decoration: none;
+  }
+
+  .maintenance-nav a::before {
+    color: var(--blue);
+    content: '# ';
+  }
+
+  .maintenance-nav a:hover,
+  .maintenance-nav a:focus-visible {
+    color: var(--blue-700);
+  }
+
+  section {
+    scroll-margin-top: 6rem;
+    margin-top: 3.25rem;
+  }
+
+  section h2 {
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(1.3rem, 2.2vw, 1.55rem);
+    font-weight: 680;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+  }
+
+  section h3 {
+    margin-top: 1.8rem;
+    font-size: 1.05rem;
+    font-weight: 680;
+  }
+
+  section > p {
+    max-width: 64rem;
+    margin-top: 0.8rem;
+    color: var(--ink-soft);
+    line-height: 1.85;
+  }
+
+  section ul {
+    padding-left: 1.4rem;
+    margin-top: 0.9rem;
+  }
+
+  section li {
+    padding-left: 0.2rem;
+    margin-top: 0.55rem;
+    color: var(--ink-soft);
+    line-height: 1.8;
+  }
+
+  section li::marker {
+    color: var(--blue);
+  }
+
+  section strong {
+    color: var(--ink);
+  }
+
+  code {
+    font-family: var(--font-mono);
+  }
+
+  p code,
+  li code,
+  dt code {
+    padding: 0.1rem 0.3rem;
+    border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+    border-radius: 0.28rem;
+    background: var(--code-bg);
+    color: inherit;
+    font-size: 0.88em;
+  }
+
+  .document-list {
+    margin: 1rem 0 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .document-list > div {
+    display: grid;
+    grid-template-columns: minmax(13rem, 0.8fr) minmax(0, 1.2fr);
+    gap: 1.25rem;
+    padding: 0.72rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .document-list dt,
+  .document-list dd {
+    min-width: 0;
+  }
+
+  .document-list dd {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .document-list--fields > div {
+    grid-template-columns: 8rem minmax(0, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    .maintenance-document {
+      width: min(calc(100% - 1.5rem), 68rem);
+      padding-top: 6.25rem;
+      padding-bottom: 4rem;
+    }
+
+    .maintenance-header h1 {
+      font-size: 1.8rem;
+    }
+
+    .maintenance-header > p:last-child {
+      font-size: 1rem;
+    }
+
+    section {
+      margin-top: 2.75rem;
+    }
+
+    .document-list > div,
+    .document-list--fields > div {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+
+  }
+</style>

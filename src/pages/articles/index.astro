@@ -1,487 +1,323 @@
 ---
 import { getCollection } from 'astro:content';
 import ArticleCard from '../../components/ArticleCard.astro';
-import PageHero from '../../components/PageHero.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { countArticleWords } from '../../utils/article';
 
 const articles = (await getCollection('articles'))
   .filter((entry) => !entry.data.draft)
   .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
-const publishedArticles = articles.filter((article) => !article.data.sample);
-const sampleArticles = articles.filter((article) => article.data.sample);
-const categories = [...new Set(articles.map((article) => article.data.category))];
-const years = [...new Set(articles.map((article) => article.data.publishedAt.getFullYear()))];
 ---
 
 <BaseLayout
   title="文章"
-  description="智邮普创工作室的团队动态、技术文章、赛事复盘与纳新公告。"
+  description="记录智邮普创工作室的团队动态、技术实践、赛事复盘与纳新信息。"
 >
-  <PageHero
-    index="05"
-    eyebrow="ARTICLES / 文章与复盘"
-    title="把过程写清楚，让经验留下来"
-    description="这里收录团队动态、公开技术文章、赛事复盘和纳新公告。文章内容只涉及可公开信息，不披露校内系统与未经授权的安全细节。"
-    meta="NOTES · WRITEUPS · ANNOUNCEMENTS · RSS"
-  />
-
-  <section class="article-directory">
-    <div class="shell article-directory__layout">
-      <button
-        class="article-filter-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="article-filter-panel"
-        data-article-filter-toggle
-      >
-        <span>搜索与筛选</span><span aria-hidden="true">＋</span>
-      </button>
-      <aside class="article-sidebar" id="article-filter-panel" data-article-filter-panel>
-        <div class="search-box">
-          <label for="article-search">搜索文章</label>
-          <div>
-            <input id="article-search" type="search" placeholder="标题、摘要或标签…" autocomplete="off" data-article-search />
-            <span aria-hidden="true">⌕</span>
-          </div>
+  <main class="articles-page">
+    <header class="articles-intro">
+      <div class="shell articles-intro__inner">
+        <div class="articles-intro__copy">
+          <p class="eyebrow">ARTICLES / 团队记录</p>
+          <h1>文章</h1>
+          <p>记录团队动态、技术实践、赛事复盘与纳新信息。</p>
         </div>
-        <div class="article-sidebar__group">
-          <p>CATEGORY / 分类</p>
-          <button class="is-active" type="button" aria-pressed="true" data-category-filter="all">
-            <span>全部文章</span><small>{articles.length}</small>
-          </button>
-          {
-            categories.map((category) => (
-              <button type="button" aria-pressed="false" data-category-filter={category}>
-                <span>{category}</span>
-                <small>{articles.filter((article) => article.data.category === category).length}</small>
-              </button>
-            ))
-          }
-        </div>
-        <div class="article-sidebar__group">
-          <p>ARCHIVE / 归档</p>
-          {
-            years.map((year) => (
-              <button type="button" aria-pressed="false" data-year-filter={String(year)}>
-                <span>{year}</span>
-                <small>{articles.filter((article) => article.data.publishedAt.getFullYear() === year).length}</small>
-              </button>
-            ))
-          }
-        </div>
-        <a class="rss-link" href="/rss.xml">
-          <span>RSS</span>
-          <div><strong>订阅文章更新</strong><small>无需社交平台算法</small></div>
-          <i aria-hidden="true">→</i>
-        </a>
-      </aside>
-
-      <div class="article-results">
-        <header>
-          <div>
-            <p>PUBLIC ARCHIVE</p>
-            <h2>全部文章</h2>
-          </div>
-          <p aria-live="polite"><strong data-article-count>{articles.length}</strong> 篇</p>
-        </header>
-        <section class="article-section" data-article-section>
-          <h3>最新内容</h3>
-          <div class="article-grid">
-            {
-              publishedArticles.map((article, index) => (
-                <ArticleCard
-                  id={article.id}
-                  title={article.data.title}
-                  description={article.data.description}
-                  category={article.data.category}
-                  tags={article.data.tags}
-                  author={article.data.author}
-                  publishedAt={article.data.publishedAt}
-                  featured={index === 0}
-                />
-              ))
-            }
-          </div>
-        </section>
         {
-          sampleArticles.length > 0 && (
-            <section class="article-section article-section--samples" data-article-section>
-              <div class="article-section__heading">
-                <h3>模板与示例</h3>
-                <p>用于统一团队记录结构，不代表当前活动正在进行。</p>
+          articles.length > 0 && (
+            <form class="article-search" role="search" data-article-search-form>
+              <div class="article-search__heading">
+                <label for="article-search-input">搜索文章</label>
+                <p aria-live="polite" data-article-search-status>
+                  共 {articles.length} 篇文章
+                </p>
               </div>
-              <div class="article-grid">
-                {sampleArticles.map((article) => (
+              <div class="article-search__field">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="10.75" cy="10.75" r="6.25" fill="none"></circle>
+                  <path d="m15.5 15.5 4 4" fill="none"></path>
+                </svg>
+                <input
+                  id="article-search-input"
+                  type="search"
+                  placeholder="输入标题、摘要或标签"
+                  autocomplete="off"
+                  aria-controls="article-list"
+                  data-article-search-input
+                />
+              </div>
+            </form>
+          )
+        }
+      </div>
+    </header>
+
+    <section class="article-archive" aria-labelledby="article-list-title">
+      <div class="shell article-archive__inner">
+        <h2 class="sr-only" id="article-list-title">文章列表</h2>
+        {
+          articles.length > 0 ? (
+            <ol class="article-list" id="article-list">
+              {articles.map((article) => (
+                <li
+                  data-article-search={[
+                    article.data.title,
+                    article.data.description,
+                    ...article.data.tags,
+                  ].join(' ')}
+                >
                   <ArticleCard
                     id={article.id}
                     title={article.data.title}
                     description={article.data.description}
-                    category={article.data.category}
                     tags={article.data.tags}
-                    author={article.data.author}
                     publishedAt={article.data.publishedAt}
-                    sample
+                    wordCount={countArticleWords(article.body ?? '')}
+                    cover={article.data.cover}
                   />
-                ))}
-              </div>
-            </section>
+                </li>
+              ))}
+            </ol>
+            <p class="article-no-results" data-article-no-results hidden>
+              没有找到匹配的文章，换个关键词试试。
+            </p>
+          ) : (
+            <p class="article-empty">文章正在整理中。</p>
           )
         }
-        <p class="empty-state article-empty" data-article-empty hidden>没有找到匹配的文章，换个关键词或分类试试。</p>
       </div>
-    </div>
-  </section>
-
-  <script>
-    const input = document.querySelector<HTMLInputElement>('[data-article-search]');
-    const cards = document.querySelectorAll<HTMLElement>('[data-article-card]');
-    const categoryButtons = document.querySelectorAll<HTMLButtonElement>('[data-category-filter]');
-    const yearButtons = document.querySelectorAll<HTMLButtonElement>('[data-year-filter]');
-    const count = document.querySelector<HTMLElement>('[data-article-count]');
-    const empty = document.querySelector<HTMLElement>('[data-article-empty]');
-    const sections = document.querySelectorAll<HTMLElement>('[data-article-section]');
-    const filterToggle = document.querySelector<HTMLButtonElement>('[data-article-filter-toggle]');
-    const filterPanel = document.querySelector<HTMLElement>('[data-article-filter-panel]');
-    let category = 'all';
-    let year = 'all';
-
-    const normalize = (value: string) => value.trim().toLocaleLowerCase();
-
-    const apply = () => {
-      const query = normalize(input?.value ?? '');
-      let visible = 0;
-      cards.forEach((card) => {
-        const haystack = normalize([
-          card.dataset.title,
-          card.dataset.description,
-          card.dataset.category,
-          card.dataset.tags,
-        ].join(' '));
-        const articleDate = card.querySelector('time')?.getAttribute('datetime') ?? '';
-        const matches =
-          (!query || haystack.includes(query)) &&
-          (category === 'all' || card.dataset.category === category) &&
-          (year === 'all' || articleDate.startsWith(year));
-        card.hidden = !matches;
-        if (matches) visible += 1;
-      });
-      sections.forEach((section) => {
-        const hasVisibleCard = [...section.querySelectorAll<HTMLElement>('[data-article-card]')]
-          .some((card) => !card.hidden);
-        section.hidden = !hasVisibleCard;
-      });
-      if (count) count.textContent = String(visible);
-      if (empty) empty.hidden = visible !== 0;
-    };
-
-    input?.addEventListener('input', apply);
-    categoryButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        category = button.dataset.categoryFilter ?? 'all';
-        categoryButtons.forEach((candidate) => {
-          const active = candidate === button;
-          candidate.classList.toggle('is-active', active);
-          candidate.setAttribute('aria-pressed', String(active));
-        });
-        apply();
-      });
-    });
-    yearButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const selected = button.dataset.yearFilter ?? 'all';
-        year = year === selected ? 'all' : selected;
-        yearButtons.forEach((candidate) => {
-          const active = year === candidate.dataset.yearFilter;
-          candidate.classList.toggle('is-active', active);
-          candidate.setAttribute('aria-pressed', String(active));
-        });
-        apply();
-      });
-    });
-
-    filterToggle?.addEventListener('click', () => {
-      const open = filterToggle.getAttribute('aria-expanded') === 'true';
-      filterToggle.setAttribute('aria-expanded', String(!open));
-      filterPanel?.classList.toggle('is-open', !open);
-      const icon = filterToggle.lastElementChild;
-      if (icon) icon.textContent = open ? '＋' : '−';
-    });
-  </script>
+    </section>
+  </main>
 </BaseLayout>
 
 <style>
-  .article-directory {
-    padding: var(--space-section) 0;
-    background: var(--surface);
+  .articles-page {
+    min-height: calc(100svh - 16.75rem);
+    background: var(--paper);
   }
 
-  .article-directory__layout {
+  .articles-intro {
+    padding: 6.55rem 0 1.15rem;
+  }
+
+  .articles-intro__inner,
+  .article-archive__inner {
+    max-width: 70rem;
+  }
+
+  .articles-intro__inner {
     display: grid;
-    grid-template-columns: 15rem minmax(0, 1fr);
-    align-items: start;
-    gap: clamp(3rem, 7vw, 6rem);
-  }
-
-  .article-filter-toggle {
-    display: none;
-  }
-
-  .article-sidebar {
-    position: sticky;
-    top: 7rem;
-    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+    align-items: end;
     gap: 2rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid var(--line);
   }
 
-  .search-box label {
-    display: block;
-    margin-bottom: 0.55rem;
+  .articles-intro h1 {
+    margin-top: 0.45rem;
+    color: var(--ink);
+    font-size: clamp(2rem, 3vw, 2.25rem);
+    font-weight: 680;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.1;
+  }
+
+  .articles-intro__copy > p:last-child {
+    margin-top: 0.45rem;
     color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.1em;
+    font-size: 0.9rem;
+    line-height: 1.7;
   }
 
-  .search-box > div {
+  .article-search {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+  }
+
+  .article-search__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .article-search__heading label {
+    color: var(--ink-soft);
+    font-size: var(--text-meta);
+    font-weight: 650;
+    letter-spacing: 0.04em;
+  }
+
+  .article-search__heading p {
+    color: var(--muted);
+    font-size: var(--text-meta);
+  }
+
+  .article-search__field {
     position: relative;
   }
 
-  .search-box input {
-    width: 100%;
-    height: 3rem;
-    padding: 0 2.3rem 0 0.85rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-sm);
-    background: var(--paper);
-    color: var(--ink);
-    font-size: var(--text-small);
-  }
-
-  .search-box div > span {
+  .article-search__field svg {
     position: absolute;
     top: 50%;
-    right: 0.8rem;
-    color: var(--blue-700);
+    left: 0.85rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--muted);
+    stroke-width: 1.7;
+    pointer-events: none;
     transform: translateY(-50%);
   }
 
-  .article-sidebar__group {
-    display: grid;
-    gap: 0.25rem;
-  }
-
-  .article-sidebar__group > p {
-    margin-bottom: 0.4rem;
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.1em;
-  }
-
-  .article-sidebar__group button {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 2.75rem;
-    padding: 0.55rem 0.7rem;
-    border: 0;
-    border-radius: 0.55rem;
-    background: transparent;
-    color: var(--ink-soft);
-    font-size: var(--text-small);
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .article-sidebar__group button:hover,
-  .article-sidebar__group button.is-active {
-    background: var(--blue-50);
-    color: var(--blue-700);
-  }
-
-  .article-sidebar__group small {
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-  }
-
-  .rss-link {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 0.7rem;
-    padding: 0.85rem;
-    border-radius: var(--radius-sm);
-    background: var(--orange-soft);
+  .article-search input {
+    width: 100%;
+    height: 2.75rem;
+    padding: 0 0.9rem 0 2.4rem;
+    border: 1px solid var(--line);
+    border-radius: 0.75rem;
+    outline: none;
+    background: var(--surface-card);
     color: var(--ink);
-    text-decoration: none;
+    font-size: 0.84rem;
+    appearance: none;
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      background-color 180ms ease;
   }
 
-  .rss-link > span {
-    display: grid;
-    width: 2.3rem;
-    height: 2.3rem;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--orange);
-    color: var(--action-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-  }
-
-  .rss-link div {
-    display: grid;
-  }
-
-  .rss-link strong {
-    font-size: var(--text-small);
-  }
-
-  .rss-link small {
+  .article-search input::placeholder {
     color: var(--muted);
-    font-size: var(--text-meta);
+    opacity: 0.78;
   }
 
-  .rss-link i {
-    font-style: normal;
+  .article-search input::-webkit-search-cancel-button {
+    appearance: none;
   }
 
-  .article-results > header {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
-    padding-bottom: 1.4rem;
-    border-bottom: 1px solid var(--line-strong);
+  .article-search input:focus-visible {
+    border-color: var(--blue);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 16%, transparent);
   }
 
-  .article-results > header div p {
-    color: var(--blue-700);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.1em;
+  .article-archive {
+    padding: 0 0 clamp(3rem, 5vw, 4.5rem);
   }
 
-  .article-results > header h2 {
-    margin-top: 0.3rem;
-    font-size: var(--text-section);
-    font-weight: 650;
-    letter-spacing: var(--tracking-heading);
-  }
-
-  .article-results > header > p {
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-  }
-
-  .article-results > header strong {
-    color: var(--blue-700);
-    font-size: 1.1rem;
-  }
-
-  .article-grid {
+  .article-list {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  .article-section {
-    margin-top: 1.5rem;
-  }
-
-  .article-section[hidden] {
-    display: none;
-  }
-
-  .article-section > h3,
-  .article-section__heading h3 {
-    font-size: 1.15rem;
-  }
-
-  .article-section__heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--line);
-  }
-
-  .article-section__heading p {
-    color: var(--muted);
-    font-size: var(--text-small);
-  }
-
-  :global(.article-grid [data-article-card][hidden]) {
-    display: none;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .article-empty {
-    margin-top: 2rem;
+    padding: 3rem 0;
+    color: var(--muted);
+    text-align: center;
   }
 
-  .article-empty[hidden] {
-    display: none;
+  .article-no-results {
+    padding: 3rem 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-align: center;
   }
 
-  @media (max-width: 900px) {
-    .article-directory__layout {
+  @media (max-width: 800px) {
+    .articles-intro__inner {
       grid-template-columns: 1fr;
+      gap: 1.15rem;
     }
 
-    .article-filter-toggle {
-      display: flex;
-      min-height: 3rem;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.7rem 0.9rem;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      background: var(--paper);
-      color: var(--ink);
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .article-sidebar {
-      position: static;
-      display: none;
-      grid-template-columns: 1fr 1fr;
-      padding: 1rem;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      background: var(--paper);
-    }
-
-    .article-sidebar.is-open {
-      display: grid;
-    }
-
-    .search-box,
-    .rss-link {
-      grid-column: 1 / 3;
+    .article-search {
+      width: min(100%, 25rem);
     }
   }
 
   @media (max-width: 650px) {
-    .article-sidebar {
-      grid-template-columns: 1fr;
+    .articles-intro {
+      padding: 5.85rem 0 1rem;
     }
 
-    .search-box,
-    .rss-link {
-      grid-column: auto;
+    .articles-intro__inner {
+      padding-bottom: 1rem;
     }
 
-    .article-grid {
-      grid-template-columns: 1fr;
+    .articles-intro h1 {
+      margin-top: 0.35rem;
+      font-size: 1.75rem;
     }
 
-    .article-section__heading {
-      align-items: flex-start;
-      flex-direction: column;
+    .articles-intro__copy > p:last-child {
+      margin-top: 0.35rem;
+      font-size: 0.875rem;
+    }
+
+    .article-archive {
+      padding-bottom: 3rem;
+    }
+
+    .article-list {
+      gap: 0.65rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .article-search input {
+      transition: none;
     }
   }
 </style>
+
+<script>
+  const searchForm = document.querySelector<HTMLFormElement>('[data-article-search-form]');
+  const searchInput = document.querySelector<HTMLInputElement>('[data-article-search-input]');
+  const searchStatus = document.querySelector<HTMLElement>('[data-article-search-status]');
+  const noResults = document.querySelector<HTMLElement>('[data-article-no-results]');
+  const articleItems = Array.from(
+    document.querySelectorAll<HTMLElement>('[data-article-search]'),
+  );
+
+  const normalizeSearchText = (value: string) =>
+    value.normalize('NFKC').toLocaleLowerCase('zh-CN').trim();
+
+  const updateArticleResults = () => {
+    if (!searchInput || !searchStatus) return;
+
+    const terms = normalizeSearchText(searchInput.value).split(/\s+/).filter(Boolean);
+    let visibleCount = 0;
+
+    articleItems.forEach((item) => {
+      const searchableText = normalizeSearchText(item.dataset.articleSearch ?? '');
+      const matches = terms.every((term) => searchableText.includes(term));
+      item.hidden = !matches;
+      if (matches) visibleCount += 1;
+    });
+
+    searchStatus.textContent = terms.length
+      ? `找到 ${visibleCount} 篇匹配文章`
+      : `共 ${articleItems.length} 篇文章`;
+
+    if (noResults) noResults.hidden = visibleCount !== 0;
+  };
+
+  searchForm?.addEventListener('submit', (event) => event.preventDefault());
+  searchInput?.addEventListener('input', updateArticleResults);
+  searchInput?.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !searchInput.value) return;
+    searchInput.value = '';
+    updateArticleResults();
+  });
+</script>

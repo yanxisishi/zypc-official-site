@@ -1,11 +1,7 @@
 [
   {
     "id": "main",
-    "status": "closed",
-    "cohort": "2026",
-    "summary": "每学年秋季面向全校大一新生开放，不限学院与专业。纳新交流群全年保留，具体赛程和报名安排以当届公告为准。",
     "qqGroup": "1057111048",
-    "qrCode": "/images/recruitment/2026-qq.png",
-    "updatedAt": "2026-07-30"
+    "wechatAccount": "智邮普创实验室"
   }
 ]

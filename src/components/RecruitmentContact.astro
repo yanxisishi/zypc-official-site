@@ -2,143 +2,82 @@
 import LogoMark from './LogoMark.astro';
 
 interface Props {
-  cohort: string;
+  cohort?: string;
   qqGroup: string;
-  qrCode: string;
-  status: 'closed' | 'preparing' | 'open' | 'ended';
+  wechatAccount: string;
   variant?: 'compact' | 'full';
-  deadline?: Date;
-  applyUrl?: string;
 }
 
 const {
   cohort,
   qqGroup,
-  qrCode,
-  status,
+  wechatAccount,
   variant = 'compact',
-  deadline,
-  applyUrl,
 } = Astro.props;
-
-const statusCopy = {
-  closed: {
-    label: '交流群保留 · 赛程待公布',
-    detail: '群入口全年保留，具体赛程与报名安排确认后将在官网更新。',
-  },
-  preparing: {
-    label: '纳新筹备中',
-    detail: '本届纳新信息正在准备，欢迎先加入交流群并留意官网更新。',
-  },
-  open: {
-    label: '报名进行中',
-    detail: '本届纳新已开放，欢迎加入交流群了解赛程和报名安排。',
-  },
-  ended: {
-    label: '本届已结束 · 交流群保留',
-    detail: '本届赛程已经结束，交流群仍会保留，下一学年将统一更新入口。',
-  },
-}[status];
-
-const title = `${cohort} 智邮普创纳新交流群`;
-const dialogId = `recruitment-qr-${variant}`;
 ---
 
 <div
-  class:list={['recruitment-contact', `recruitment-contact--${variant}`, `recruitment-contact--${status}`]}
+  class:list={['recruitment-contact', `recruitment-contact--${variant}`]}
   data-recruitment-contact
 >
   {
     variant === 'compact' ? (
-      <>
-        <div class="recruitment-contact__compact">
-          <LogoMark size="small" />
-          <div class="recruitment-contact__summary">
-            <strong>{cohort} 纳新交流群</strong>
-            <span>{statusCopy.label}</span>
-            <small>QQ群：{qqGroup}</small>
-          </div>
-          <button
-            class="recruitment-contact__action"
-            type="button"
-            aria-label={`复制 QQ 群号 ${qqGroup}`}
-            data-copy-group={qqGroup}
-          >
-            <span data-copy-label>复制</span>
-          </button>
-          <button
-            class="recruitment-contact__action recruitment-contact__qr-open"
-            type="button"
-            aria-haspopup="dialog"
-            aria-controls={dialogId}
-            data-qr-open
-          >
-            二维码
-          </button>
-        </div>
-        <div class="recruitment-contact__preview" aria-hidden="true">
-          <img src={qrCode} width="1284" height="2283" loading="eager" decoding="async" alt="" />
-          <span>扫码加入 · QQ {qqGroup}</span>
-        </div>
-        <dialog id={dialogId} class="recruitment-contact__dialog" aria-label={`${title}二维码`} data-recruitment-dialog>
-          <form method="dialog">
-            <button type="submit" aria-label="关闭二维码预览">×</button>
-          </form>
-          <img
-            src={qrCode}
-            width="1284"
-            height="2283"
-            loading="eager"
-            decoding="async"
-            alt={`${title}二维码，QQ群号 ${qqGroup}`}
-          />
-          <div>
-            <strong>{title}</strong>
-            <span>{statusCopy.label}</span>
-            <button type="button" data-copy-group={qqGroup}>
-              <span data-copy-label>复制群号 {qqGroup}</span>
-            </button>
-          </div>
-        </dialog>
-      </>
+      <div class="recruitment-contact__compact">
+        <LogoMark size="small" />
+        <strong class="recruitment-contact__compact-title">
+          {cohort ? `${cohort} 纳新交流群` : '纳新交流群'}
+        </strong>
+        <button
+          class="recruitment-contact__copy"
+          type="button"
+          aria-label={`复制 QQ 群号 ${qqGroup}`}
+          data-copy-group={qqGroup}
+        >
+          <span class="recruitment-contact__number">{qqGroup}</span>
+          <svg class="recruitment-contact__copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+            <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+          </svg>
+          <svg class="recruitment-contact__check-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m5 12 4 4L19 6"></path>
+          </svg>
+          <span class="sr-only" data-copy-label>复制群号</span>
+        </button>
+      </div>
     ) : (
-      <>
-        <div class="recruitment-contact__heading">
-          <p class="eyebrow">CONTACT / 联系方式</p>
-          <h2>{title}</h2>
-          <p>{statusCopy.detail}</p>
+      <dl class="recruitment-contact__list">
+        <div>
+          <dt>微信公众号</dt>
+          <dd>
+            <strong>{wechatAccount}</strong>
+            <span>在微信内搜索并关注</span>
+          </dd>
         </div>
-        <div class="recruitment-contact__full">
-          <img
-            src={qrCode}
-            width="1284"
-            height="2283"
-            loading="eager"
-            decoding="async"
-            alt={`${title}二维码`}
-          />
-          <div>
-            <span class="recruitment-contact__status">{statusCopy.label}</span>
-            <p><span>QQ群</span><strong>{qqGroup}</strong></p>
-            {deadline && (
-              <p>
-                <span>截止日期</span>
-                <strong>{new Intl.DateTimeFormat('zh-CN').format(deadline)}</strong>
-              </p>
-            )}
-            <button class="button" type="button" data-copy-group={qqGroup}>
-              <span data-copy-label>复制群号</span>
+        <div>
+          <dt>纳新交流群</dt>
+          <dd>
+            <button
+              class="recruitment-contact__group"
+              type="button"
+              aria-label={`复制 QQ 群号 ${qqGroup}`}
+              data-copy-group={qqGroup}
+            >
+              <strong>{qqGroup}</strong>
+              <svg class="recruitment-contact__copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+                <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+              </svg>
+              <svg class="recruitment-contact__check-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m5 12 4 4L19 6"></path>
+              </svg>
+              <span class="sr-only" data-copy-label>复制群号</span>
             </button>
-            {applyUrl && (
-              <a class="button button--ghost" href={applyUrl} target="_blank" rel="noreferrer">
-                前往报名 ↗
-              </a>
-            )}
-          </div>
+          </dd>
         </div>
-      </>
+      </dl>
     )
   }
+
   <span class="sr-only" aria-live="polite" data-copy-status></span>
 </div>
 
@@ -153,36 +92,29 @@ const dialogId = `recruitment-qr-${variant}`;
     textarea.style.opacity = '0';
     document.body.append(textarea);
     textarea.select();
-    const legacyDocument = document as unknown as { execCommand: (command: string) => boolean };
-    const copied = legacyDocument.execCommand('copy');
+
+    let copied = false;
+    try {
+      const legacyDocument = document as unknown as {
+        execCommand: (command: string) => boolean;
+      };
+      copied = legacyDocument.execCommand('copy');
+    } catch {
+      copied = false;
+    }
+
     textarea.remove();
     return copied;
   };
 
   contacts.forEach((contact) => {
-    const dialog = contact.querySelector<HTMLDialogElement>('[data-recruitment-dialog]');
-    const opener = contact.querySelector<HTMLButtonElement>('[data-qr-open]');
     const copyStatus = contact.querySelector<HTMLElement>('[data-copy-status]');
-
-    opener?.addEventListener('click', () => {
-      if (!dialog?.showModal) return;
-      dialog.showModal();
-      document.body.classList.add('dialog-open');
-    });
-
-    dialog?.addEventListener('close', () => {
-      document.body.classList.remove('dialog-open');
-      opener?.focus();
-    });
-
-    dialog?.addEventListener('click', (event) => {
-      if (event.target === dialog) dialog.close();
-    });
 
     contact.querySelectorAll<HTMLButtonElement>('[data-copy-group]').forEach((button) => {
       button.addEventListener('click', async () => {
         const group = button.dataset.copyGroup;
         if (!group) return;
+
         let copied = false;
         try {
           await navigator.clipboard.writeText(group);
@@ -193,16 +125,24 @@ const dialogId = `recruitment-qr-${variant}`;
 
         const label = button.querySelector<HTMLElement>('[data-copy-label]');
         const originalLabel = label?.textContent ?? '';
+        const originalAriaLabel = button.getAttribute('aria-label') ?? '';
+
         button.classList.toggle('is-copied', copied);
         if (label) label.textContent = copied ? '已复制' : '复制失败';
+        button.setAttribute(
+          'aria-label',
+          copied ? 'QQ群号已复制' : `复制失败，请手动复制群号 ${group}`,
+        );
         if (copyStatus) {
           copyStatus.textContent = copied
             ? `QQ群号 ${group} 已复制`
             : `复制失败，请手动复制群号 ${group}`;
         }
+
         window.setTimeout(() => {
           button.classList.remove('is-copied');
           if (label) label.textContent = originalLabel;
+          if (originalAriaLabel) button.setAttribute('aria-label', originalAriaLabel);
         }, 1800);
       });
     });
@@ -210,328 +150,173 @@ const dialogId = `recruitment-qr-${variant}`;
 </script>
 
 <style>
-  :global(body.dialog-open) {
-    overflow: hidden;
-  }
-
   .recruitment-contact {
     position: relative;
   }
 
   .recruitment-contact--compact {
     z-index: 4;
-    width: min(100%, 34rem);
+    width: fit-content;
+    max-width: 100%;
   }
 
   .recruitment-contact__compact {
     display: grid;
-    min-height: 4.75rem;
-    overflow: hidden;
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-columns: auto auto auto;
+    min-height: 4.4rem;
     align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem 0.8rem;
     border: 1px solid var(--line);
-    border-radius: var(--radius-md);
+    border-radius: 1rem;
     background: var(--surface-card);
     box-shadow: var(--shadow-card);
   }
 
-  .recruitment-contact__compact :global(.logo-mark) {
-    margin-left: 0.75rem;
-  }
-
-  .recruitment-contact__summary {
-    display: grid;
-    min-width: 0;
-    gap: 0.08rem;
-    padding: 0.65rem 0.75rem;
-  }
-
-  .recruitment-contact__summary strong {
-    overflow: hidden;
-    font-size: 0.9375rem;
-    text-overflow: ellipsis;
+  .recruitment-contact__compact-title {
+    color: var(--ink);
+    font-size: 0.98rem;
+    font-weight: 700;
     white-space: nowrap;
   }
 
-  .recruitment-contact__summary span {
-    color: var(--blue-700);
-    font-size: var(--text-meta);
-    font-weight: 650;
-  }
-
-  .recruitment-contact__summary small {
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-  }
-
-  .recruitment-contact__action {
-    align-self: stretch;
-    min-width: 3.75rem;
-    padding: 0 0.75rem;
-    border: 0;
-    border-left: 1px solid var(--line);
-    background: transparent;
-    color: var(--ink-soft);
-    font-size: var(--text-meta);
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 160ms ease, color 160ms ease;
-  }
-
-  .recruitment-contact__action:hover,
-  .recruitment-contact__action:focus-visible {
-    background: var(--blue-50);
-    color: var(--blue-700);
-  }
-
-  .recruitment-contact__action.is-copied {
-    background: rgba(43, 155, 114, 0.12);
-    color: var(--success);
-  }
-
-  .recruitment-contact__preview {
-    position: absolute;
-    z-index: 30;
-    top: 50%;
-    left: calc(100% + 1rem);
-    display: grid;
-    width: 11rem;
-    gap: 0.55rem;
-    padding: 0.7rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    background: var(--surface-overlay);
-    box-shadow: var(--shadow-soft);
-    opacity: 0;
-    pointer-events: none;
-    transform: translate(-0.5rem, -50%);
-    transition: opacity 180ms ease, transform 180ms ease;
-  }
-
-  .recruitment-contact__preview img {
-    width: 100%;
-    aspect-ratio: 1;
-    border-radius: 0.65rem;
-    object-fit: cover;
-    object-position: center;
-  }
-
-  .recruitment-contact__preview span {
-    color: var(--muted);
-    font-size: var(--text-meta);
-    text-align: center;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .recruitment-contact--compact:hover .recruitment-contact__preview,
-    .recruitment-contact--compact:focus-within .recruitment-contact__preview {
-      opacity: 1;
-      transform: translate(0, -50%);
-    }
-  }
-
-  .recruitment-contact__dialog {
-    width: min(92vw, 22rem);
-    max-height: 88svh;
-    padding: 1rem;
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius-lg);
-    background: var(--surface-overlay);
-    color: var(--ink);
-    box-shadow: 0 28px 80px rgba(2, 15, 31, 0.34);
-  }
-
-  .recruitment-contact__dialog::backdrop {
-    background: rgba(2, 12, 24, 0.7);
-  }
-
-  .recruitment-contact__dialog form {
-    position: absolute;
-    z-index: 2;
-    top: 0.75rem;
-    right: 0.75rem;
-  }
-
-  .recruitment-contact__dialog form button {
-    display: grid;
-    width: 2.75rem;
-    height: 2.75rem;
-    padding: 0;
-    place-items: center;
-    border: 1px solid var(--line);
-    border-radius: 50%;
-    background: var(--surface);
-    color: var(--ink);
-    font-size: 1.35rem;
-    cursor: pointer;
-  }
-
-  .recruitment-contact__dialog > img {
-    width: min(100%, 15rem);
-    max-height: 58svh;
-    margin-inline: auto;
-    border-radius: var(--radius-md);
-    object-fit: contain;
-  }
-
-  .recruitment-contact__dialog > div {
-    display: grid;
-    gap: 0.35rem;
-    margin-top: 0.9rem;
-    text-align: center;
-  }
-
-  .recruitment-contact__dialog > div span {
-    color: var(--muted);
-    font-size: var(--text-small);
-  }
-
-  .recruitment-contact__dialog > div button {
-    min-height: 2.75rem;
-    margin-top: 0.4rem;
-    border: 0;
-    border-radius: 999px;
-    background: var(--action-bg);
-    color: var(--action-text);
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .recruitment-contact--full {
-    grid-row: 1 / 3;
-    overflow: hidden;
-    padding: clamp(1.5rem, 3vw, 2.2rem);
-    border: 1px solid rgba(53, 129, 182, 0.18);
-    border-radius: var(--radius-xl);
-    background: var(--surface);
-  }
-
-  .recruitment-contact__heading h2 {
-    max-width: 34rem;
-    margin-top: 1.5rem;
-    font-size: var(--text-section);
-    line-height: 1.16;
-  }
-
-  .recruitment-contact__heading > p:not(.eyebrow) {
-    max-width: 36rem;
-    margin-top: 0.8rem;
-    color: var(--muted);
-  }
-
-  .recruitment-contact__full {
-    display: grid;
-    grid-template-columns: 11rem minmax(0, 1fr);
-    gap: 1.75rem;
+  .recruitment-contact__copy {
+    display: inline-flex;
     align-items: center;
-    margin-top: 2rem;
-  }
-
-  .recruitment-contact__full > img {
-    width: 11rem;
-    aspect-ratio: 1;
-    border-radius: var(--radius-md);
-    object-fit: cover;
-    object-position: center;
-  }
-
-  .recruitment-contact__full > div {
-    display: grid;
-    justify-items: start;
-    gap: 0.8rem;
-  }
-
-  .recruitment-contact__status {
-    color: var(--blue-700);
-    font-size: var(--text-small);
-    font-weight: 700;
-  }
-
-  .recruitment-contact__full p {
-    display: grid;
-    gap: 0.05rem;
-  }
-
-  .recruitment-contact__full p span {
+    gap: 0.35rem;
+    padding: 0.25rem 0;
+    border: 0;
+    background: transparent;
     color: var(--muted);
-    font-size: var(--text-meta);
+    cursor: pointer;
   }
 
-  .recruitment-contact__full p strong {
+  .recruitment-contact__number {
+    padding-bottom: 0.08rem;
+    border-bottom: 1px solid var(--line-strong);
     font-family: var(--font-mono);
-    font-size: 1.1rem;
+    font-size: 0.86rem;
   }
 
-  .recruitment-contact__full .button {
-    min-height: 2.75rem;
-    padding-block: 0.55rem;
+  .recruitment-contact__copy svg,
+  .recruitment-contact__group svg {
+    width: 1rem;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
   }
 
-  @media (max-width: 1120px) {
-    .recruitment-contact__preview {
-      top: calc(100% + 0.75rem);
-      right: 0;
-      left: auto;
-      transform: translateY(-0.5rem);
-    }
-
+  .recruitment-contact__check-icon {
+    display: none;
   }
 
-  @media (max-width: 1120px) and (hover: hover) and (pointer: fine) {
-    .recruitment-contact--compact:hover .recruitment-contact__preview,
-    .recruitment-contact--compact:focus-within .recruitment-contact__preview {
-      transform: translateY(0);
-    }
+  .recruitment-contact__copy:hover,
+  .recruitment-contact__copy:focus-visible,
+  .recruitment-contact__group:hover,
+  .recruitment-contact__group:focus-visible {
+    color: var(--blue-700);
   }
 
-  @media (max-width: 880px) {
-    .recruitment-contact--full {
-      grid-row: auto;
-    }
+  .recruitment-contact__copy.is-copied .recruitment-contact__copy-icon,
+  .recruitment-contact__group.is-copied .recruitment-contact__copy-icon {
+    display: none;
   }
 
-  @media (max-width: 760px) {
-    .recruitment-contact__compact {
-      grid-template-columns: auto minmax(0, 1fr) auto auto;
-    }
+  .recruitment-contact__copy.is-copied .recruitment-contact__check-icon,
+  .recruitment-contact__group.is-copied .recruitment-contact__check-icon {
+    display: block;
+  }
 
-    .recruitment-contact__compact :global(.logo-mark) {
-      width: 2.4rem;
-      margin-left: 0.55rem;
-    }
+  .recruitment-contact__list {
+    margin-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
 
-    .recruitment-contact__summary {
-      padding-inline: 0.55rem;
-    }
+  .recruitment-contact__list > div {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 1rem;
+    align-items: center;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--line);
+  }
 
-    .recruitment-contact__summary span {
-      display: none;
-    }
+  .recruitment-contact__list dt {
+    font-size: var(--text-small);
+    font-weight: 680;
+  }
 
-    .recruitment-contact__action {
-      min-width: 3.25rem;
-      padding-inline: 0.5rem;
-    }
+  .recruitment-contact__list dd {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 0.75rem;
+    color: var(--ink-soft);
+  }
 
-    .recruitment-contact__preview {
-      display: none;
-    }
+  .recruitment-contact__list dd > strong,
+  .recruitment-contact__group strong {
+    color: var(--ink);
+    font-weight: 680;
+  }
+
+  .recruitment-contact__list dd > span,
+  .recruitment-contact__group span {
+    color: var(--muted);
+    font-size: var(--text-small);
+  }
+
+  .recruitment-contact__group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+  }
+
+  .recruitment-contact__group.is-copied {
+    color: var(--blue-700);
   }
 
   @media (max-width: 560px) {
-    .recruitment-contact--full {
-      min-height: auto;
-      padding: 1.25rem;
+    .recruitment-contact__compact {
+      grid-template-columns: auto auto minmax(0, 1fr);
+      gap: 0.6rem;
+      padding-inline: 0.65rem;
     }
 
-    .recruitment-contact__full {
+    .recruitment-contact__compact-title {
+      font-size: 0.9rem;
+    }
+
+    .recruitment-contact__number {
+      font-size: 0.78rem;
+    }
+
+    .recruitment-contact__list > div {
       grid-template-columns: 1fr;
-      gap: 1.25rem;
+      gap: 0.3rem;
     }
 
-    .recruitment-contact__full > img {
-      width: 9rem;
+    .recruitment-contact__list dd,
+    .recruitment-contact__group {
+      flex-wrap: wrap;
+      gap: 0.35rem 0.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .recruitment-contact__copy,
+    .recruitment-contact__group {
+      transition: none;
     }
   }
 </style>

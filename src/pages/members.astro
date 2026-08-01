@@ -1,389 +1,469 @@
 ---
-import { getCollection } from 'astro:content';
-import PageHero from '../components/PageHero.astro';
-import SectionHeading from '../components/SectionHeading.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import memberGroups from '../data/members';
 
-const members = (await getCollection('members')).sort((a, b) => a.data.order - b.data.order);
-const publicMembers = members.filter((member) => !member.data.placeholder);
-const statuses = [...new Set(publicMembers.map((member) => member.data.status))];
-const cohorts = [...new Set(publicMembers.map((member) => member.data.cohort))];
-const directions = [...new Set(publicMembers.flatMap((member) => member.data.directions))];
-const showFilters = statuses.length > 1 || cohorts.length > 1 || directions.length > 1;
+const cohortGroups = memberGroups.map((group, index) => ({
+  ...group,
+  id: `cohort-${group.cohort.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+  label: /^\d{4}$/.test(group.cohort) ? `${group.cohort} 届` : group.cohort,
+  width: `${Math.min(80 + index * 5, 100)}%`,
+}));
 
-const groups = [
-  {
-    key: 'mentor',
-    label: '导师',
-    english: 'MENTORS',
-    description: '提供方向指导与团队支持，资料会在获得授权后逐步公开。',
-  },
-  {
-    key: 'current',
-    label: '现役成员',
-    english: 'CURRENT MEMBERS',
-    description: '仍活跃在学习、竞赛和技术实践第一线的成员。',
-  },
-  {
-    key: 'alumni',
-    label: '往届成员',
-    english: 'ALUMNI',
-    description: '成员会毕业，经验与影响继续留在团队中。',
-  },
-] as const;
+const firstCohort = cohortGroups.at(0)?.cohort ?? '';
+const latestCohort = cohortGroups.at(-1)?.cohort ?? '';
+
+const getLinkHost = (link?: string) => {
+  if (!link) return '';
+  try {
+    return new URL(link).hostname.replace(/^www\./, '');
+  } catch {
+    return link;
+  }
+};
+
+const getGithubName = (github?: string) => {
+  if (!github) return '';
+  try {
+    return new URL(github).pathname.split('/').filter(Boolean)[0] ?? '';
+  } catch {
+    return github.replace(/^@/, '').replace(/^github\.com\//, '').split('/')[0];
+  }
+};
+
+const getGithubUrl = (github?: string) => {
+  const name = getGithubName(github);
+  return name ? `https://github.com/${name}` : undefined;
+};
 ---
 
 <BaseLayout
   title="团队成员"
-  description="认识智邮普创工作室的导师、现役成员与往届成员。"
+  description={`按加入年份认识智邮普创工作室 ${firstCohort} 至 ${latestCohort} 届成员。`}
 >
-  <PageHero
-    index="03"
-    eyebrow="PEOPLE OF ZYPC / 团队成员"
-    title="技术因人而生，也由人传承"
-    description="这里优先展示安全昵称、加入年份、研究方向和公开技术主页。真实姓名、私人联系方式与未经授权的头像不会默认公开。"
-    meta="MENTORS · CURRENT MEMBERS · ALUMNI"
-  />
-
-  <section class="directory section-pad">
+  <main class="members-page" aria-labelledby="members-title">
     <div class="shell">
-      <div class="directory__intro">
-        <SectionHeading
-          eyebrow="MEMBER DIRECTORY / 成员名录"
-          title="找到同方向的伙伴"
-          description="成员资料会在获得本人授权后逐步补充，当前先保留清晰、克制的结构骨架。"
-        />
+      <header class="members-masthead">
+        <span class="members-masthead__backdrop" aria-hidden="true">ZYPC</span>
+        <p>PEOPLE / {firstCohort}—{latestCohort}</p>
+        <h1 id="members-title">智邮普创成员名录</h1>
+      </header>
+
+      <div class="cohort-directory">
         {
-          publicMembers.length > 0 ? (
-            <p class="directory__count" aria-live="polite">
-              <strong data-result-count>{publicMembers.length}</strong> 位公开成员
-            </p>
-          ) : (
-            <p class="directory__pending">资料整理中</p>
-          )
+          cohortGroups.map((group) => (
+            <section
+              class="cohort-group"
+              id={group.id}
+              style={`--pyramid-width: ${group.width}`}
+              aria-labelledby={`${group.id}-title`}
+            >
+              <header class="cohort-heading">
+                <h2 id={`${group.id}-title`}>{group.label}</h2>
+                <p>{group.desc}</p>
+              </header>
+
+              {
+                group.entries.length > 0 ? (
+                  <menu class="member-list" aria-label={`${group.label}成员`}>
+                    {
+                      group.entries.map((member, index) => {
+                        const displayName = member.nickname;
+                        const detailId = `member-${group.cohort}-${index + 1}-detail`;
+                        const githubName = getGithubName(member.github);
+                        const githubUrl = getGithubUrl(member.github);
+                        const resolvedAvatar =
+                          member.avatar ??
+                          (member.qq
+                            ? `https://q1.qlogo.cn/g?b=qq&nk=${encodeURIComponent(member.qq)}&s=640`
+                            : githubName
+                              ? `https://github.com/${githubName}.png?size=160`
+                              : undefined);
+                        const primaryLink = member.blog ?? githubUrl;
+                        const primaryHost = getLinkHost(primaryLink);
+
+                        return (
+                          <li class="member-entry" data-member-entry>
+                            <button
+                              class="member-card"
+                              type="button"
+                              aria-expanded="false"
+                              aria-controls={detailId}
+                              data-member-trigger
+                            >
+                              <span class="member-card__avatar" aria-hidden="true">
+                                {resolvedAvatar ? (
+                                  <img
+                                    src={resolvedAvatar}
+                                    alt=""
+                                    width="80"
+                                    height="80"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <span>{member.nickname.slice(0, 1).toUpperCase()}</span>
+                                )}
+                              </span>
+                              <span class="member-card__identity">
+                                <span class="member-card__name">{displayName}</span>
+                                {member.sitenick && (
+                                  <span class="member-card__sitenick">{member.sitenick}</span>
+                                )}
+                              </span>
+                            </button>
+
+                            <aside
+                              class="member-tooltip"
+                              id={detailId}
+                              aria-label={`${displayName}的公开资料`}
+                            >
+                              <div class="member-tooltip__site">
+                                <span class="member-tooltip__avatar" aria-hidden="true">
+                                  {resolvedAvatar ? (
+                                    <img src={resolvedAvatar} alt="" width="64" height="64" loading="lazy" />
+                                  ) : (
+                                    <span>{member.nickname.slice(0, 1).toUpperCase()}</span>
+                                  )}
+                                </span>
+
+                                <div class="member-tooltip__identity">
+                                  <strong>{member.title ?? displayName}</strong>
+                                  {primaryLink ? (
+                                    <a href={primaryLink} target="_blank" rel="noreferrer">
+                                      <span>{primaryHost}</span><i aria-hidden="true">▲</i>
+                                    </a>
+                                  ) : (
+                                    <span>暂无公开主页</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <div class="member-tooltip__desc">
+                                <span class="member-tooltip__year" aria-hidden="true">{group.cohort}</span>
+                                <div class="member-tooltip__contacts" aria-label="公开联系方式">
+                                  {member.qq && (
+                                    <div class="member-tooltip__contact">
+                                      <span class="member-tooltip__brand member-tooltip__brand--qq" title="QQ">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                          <path d="m17.536 12.514-.696-1.796c0-.021.01-.375.01-.558C16.85 7.088 15.447 4 12 4s-4.848 3.088-4.848 6.16c0 .183.009.537.01.557l-.696 1.797c-.19.515-.38 1.05-.517 1.51-.657 2.189-.444 3.095-.282 3.115.348.043 1.354-1.648 1.354-1.648 0 .98.487 2.258 1.542 3.18-.394.127-.878.32-1.188.557-.28.214-.245.431-.194.52.22.385 3.79.245 4.82.125 1.03.12 4.599.26 4.82-.126.05-.088.085-.305-.194-.519-.311-.237-.795-.43-1.19-.556 1.055-.923 1.542-2.202 1.542-3.181 0 0 1.007 1.691 1.355 1.648.162-.02.378-.928-.283-3.116a27 27 0 0 0-.516-1.509m1.021 8.227c-.373.652-.833.892-1.438 1.057a5 5 0 0 1-.794.138c-.44.045-.986.065-1.613.064a33 33 0 0 1-2.71-.116c-.692.065-1.785.114-2.71.116a16 16 0 0 1-1.614-.064 5 5 0 0 1-.793-.138c-.605-.164-1.065-.405-1.44-1.059a2.27 2.27 0 0 1-.239-1.652c-.592-.132-1.001-.482-1.279-.911a2.4 2.4 0 0 1-.309-.71 4 4 0 0 1-.116-1.106c.013-.785.187-1.762.532-2.912.14-.466.327-1.008.567-1.655l.554-1.43-.002-.203C5.153 5.605 7.589 2 12 2c4.413 0 6.848 3.605 6.848 8.16l-.001.203.553 1.43.01.026c.225.606.413 1.153.556 1.626.348 1.15.522 2.128.535 2.916q.012.61-.118 1.108c-.066.246-.161.48-.31.708-.276.427-.684.776-1.277.91.13.554.055 1.14-.24 1.654" />
+                                        </svg>
+                                        <span class="sr-only">QQ</span>
+                                      </span>
+                                      <span class="member-tooltip__value">{member.qq}</span>
+                                      <button
+                                        class="member-tooltip__copy"
+                                        type="button"
+                                        title={`复制 QQ：${member.qq}`}
+                                        aria-label={`复制 QQ 号 ${member.qq}`}
+                                        data-copy-contact={member.qq}
+                                        data-copy-name="QQ 号"
+                                      >
+                                        <svg class="member-tooltip__copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                          <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+                                          <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+                                        </svg>
+                                        <svg class="member-tooltip__check-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                          <path d="m5 12 4 4L19 6"></path>
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  )}
+                                  {githubName && githubUrl && (
+                                    <div class="member-tooltip__contact">
+                                      <span class="member-tooltip__brand member-tooltip__brand--github" title="GitHub">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                          <path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" />
+                                        </svg>
+                                        <span class="sr-only">GitHub</span>
+                                      </span>
+                                      <a
+                                        class="member-tooltip__value"
+                                        href={githubUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                      >
+                                        {githubName}
+                                      </a>
+                                      <button
+                                        class="member-tooltip__copy"
+                                        type="button"
+                                        title={`复制 GitHub 主页：${githubUrl}`}
+                                        aria-label={`复制 GitHub 主页 ${githubUrl}`}
+                                        data-copy-contact={githubUrl}
+                                        data-copy-name="GitHub 主页"
+                                      >
+                                        <svg class="member-tooltip__copy-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                          <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+                                          <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+                                        </svg>
+                                        <svg class="member-tooltip__check-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                          <path d="m5 12 4 4L19 6"></path>
+                                        </svg>
+                                      </button>
+                                    </div>
+                                  )}
+                                  {!member.qq && !member.github && (
+                                    <span>暂无公开联系方式</span>
+                                  )}
+                                </div>
+                              </div>
+                            </aside>
+                          </li>
+                        );
+                      })
+                    }
+                  </menu>
+                ) : (
+                  <p class="cohort-empty">成员资料整理中</p>
+                )
+              }
+            </section>
+          ))
         }
       </div>
-
-      {
-        showFilters && (
-          <div class="filters" aria-label="成员筛选">
-            {statuses.length > 1 && (
-              <div class="filter-group">
-                <span>身份</span>
-                <div>
-                  <button class="is-active" type="button" aria-pressed="true" data-filter="status" data-value="all">全部</button>
-                  <button type="button" aria-pressed="false" data-filter="status" data-value="mentor">导师</button>
-                  <button type="button" aria-pressed="false" data-filter="status" data-value="current">现役</button>
-                  <button type="button" aria-pressed="false" data-filter="status" data-value="alumni">往届</button>
-                </div>
-              </div>
-            )}
-            {cohorts.length > 1 && (
-              <div class="filter-group">
-                <span>届别</span>
-                <div>
-                  <button class="is-active" type="button" aria-pressed="true" data-filter="cohort" data-value="all">全部</button>
-                  {cohorts.map((cohort) => <button type="button" aria-pressed="false" data-filter="cohort" data-value={cohort}>{cohort}</button>)}
-                </div>
-              </div>
-            )}
-            {directions.length > 1 && (
-              <div class="filter-group">
-                <span>方向</span>
-                <div>
-                  <button class="is-active" type="button" aria-pressed="true" data-filter="direction" data-value="all">全部</button>
-                  {directions.map((direction) => <button type="button" aria-pressed="false" data-filter="direction" data-value={direction}>{direction}</button>)}
-                </div>
-              </div>
-            )}
-          </div>
-        )
-      }
-
-      <div class="member-groups">
-        {
-          groups.map((group) => {
-            const entries = members.filter((member) => member.data.status === group.key);
-            return (
-              <section class:list={['member-group', { 'member-group--sparse': entries.length < 3 }]} data-member-group={group.key}>
-                <header>
-                  <div>
-                    <p>{group.english}</p>
-                    <h2>{group.label}</h2>
-                  </div>
-                  <p>{group.description}</p>
-                </header>
-                <div class="member-grid">
-                  {entries.map((member) => (
-                    <article
-                      class:list={['member-card', { 'member-card--placeholder': member.data.placeholder }]}
-                      data-member-card
-                      data-status={member.data.status}
-                      data-cohort={member.data.cohort}
-                      data-directions={member.data.directions.join('|')}
-                    >
-                      <div class="member-card__avatar" aria-hidden="true">
-                        {member.data.avatar ? (
-                          <img src={member.data.avatar} alt="" width="180" height="180" loading="lazy" />
-                        ) : (
-                          <span>{member.data.placeholder ? 'ZYPC' : member.data.nickname.slice(0, 1).toUpperCase()}</span>
-                        )}
-                      </div>
-                      <div class="member-card__meta">
-                        <span>{member.data.cohort}</span>
-                        {member.data.placeholder && <span>占位资料</span>}
-                      </div>
-                      <h3>{member.data.nickname}</h3>
-                      <ul>
-                        {member.data.directions.map((direction) => <li>{direction}</li>)}
-                      </ul>
-                      <div class="member-card__links">
-                        {member.data.blog && <a href={member.data.blog} target="_blank" rel="noreferrer">Blog ↗</a>}
-                        {member.data.github && <a href={member.data.github} target="_blank" rel="noreferrer">GitHub ↗</a>}
-                        {!member.data.blog && !member.data.github && <span>公开资料将按授权补充</span>}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            );
-          })
-        }
-      </div>
-      <p class="empty-state directory__empty" data-member-empty hidden>没有符合当前筛选条件的成员资料。</p>
     </div>
-  </section>
-
-  <section class="privacy-note">
-    <div class="shell privacy-note__inner" data-reveal>
-      <span>PRIVACY BY DEFAULT</span>
-      <h2>公开是一种选择，不是默认要求</h2>
-      <p>成员可自行决定是否展示头像、博客和 GitHub；真实姓名与私人联系方式只在获得明确授权后公开。</p>
-      <a class="button button--light" href="/join/">了解如何加入</a>
-    </div>
-  </section>
+  </main>
 
   <script>
-    const state = { status: 'all', cohort: 'all', direction: 'all' };
-    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
-    const cards = document.querySelectorAll<HTMLElement>('[data-member-card]:not(.member-card--placeholder)');
-    const groups = document.querySelectorAll<HTMLElement>('[data-member-group]');
-    const result = document.querySelector<HTMLElement>('[data-result-count]');
-    const empty = document.querySelector<HTMLElement>('[data-member-empty]');
+    const entries = [...document.querySelectorAll<HTMLElement>('[data-member-entry]')];
+    const contactCopyButtons = [
+      ...document.querySelectorAll<HTMLButtonElement>('[data-copy-contact]'),
+    ];
 
-    const applyFilters = () => {
-      let visible = 0;
-      cards.forEach((card) => {
-        const directions = (card.dataset.directions ?? '').split('|');
-        const matches =
-          (state.status === 'all' || card.dataset.status === state.status) &&
-          (state.cohort === 'all' || card.dataset.cohort === state.cohort) &&
-          (state.direction === 'all' || directions.includes(state.direction));
-        card.hidden = !matches;
-        if (matches) visible += 1;
-      });
-
-      groups.forEach((group) => {
-        const hasVisibleCards = [...group.querySelectorAll<HTMLElement>('[data-member-card]')]
-          .some((card) => !card.hidden);
-        group.hidden = !hasVisibleCards;
-      });
-
-      if (result) result.textContent = String(visible);
-      if (empty) empty.hidden = visible !== 0;
+    const setEntryOpen = (entry: HTMLElement, open: boolean) => {
+      entry.classList.toggle('is-open', open);
+      entry.querySelector<HTMLButtonElement>('[data-member-trigger]')
+        ?.setAttribute('aria-expanded', String(open));
     };
 
-    buttons.forEach((button) => {
-      button.addEventListener('click', () => {
-        const filter = button.dataset.filter as keyof typeof state;
-        if (!filter) return;
-        state[filter] = button.dataset.value ?? 'all';
-        document.querySelectorAll(`[data-filter="${filter}"]`).forEach((candidate) => {
-          const active = candidate === button;
-          candidate.classList.toggle('is-active', active);
-          candidate.setAttribute('aria-pressed', String(active));
-        });
-        applyFilters();
+    const closeEntries = (except?: HTMLElement) => {
+      entries.forEach((entry) => {
+        if (entry !== except) setEntryOpen(entry, false);
       });
+    };
+
+    entries.forEach((entry) => {
+      entry.querySelector<HTMLButtonElement>('[data-member-trigger]')
+        ?.addEventListener('click', () => {
+          const nextOpen = !entry.classList.contains('is-open');
+          closeEntries(entry);
+          setEntryOpen(entry, nextOpen);
+        });
+    });
+
+    contactCopyButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        const value = button.dataset.copyContact;
+        const name = button.dataset.copyName ?? '内容';
+        if (!value) return;
+
+        try {
+          await navigator.clipboard.writeText(value);
+          button.classList.add('is-copied');
+          button.setAttribute('aria-label', `已复制${name} ${value}`);
+          window.setTimeout(() => {
+            button.classList.remove('is-copied');
+            button.setAttribute('aria-label', `复制${name} ${value}`);
+          }, 1600);
+        } catch {
+          button.setAttribute('aria-label', `${name} ${value}`);
+        }
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!(event.target as Element).closest('[data-member-entry]')) closeEntries();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      const openEntry = entries.find((entry) => entry.classList.contains('is-open'));
+      if (!openEntry) return;
+      setEntryOpen(openEntry, false);
+      openEntry.querySelector<HTMLButtonElement>('[data-member-trigger]')?.focus();
     });
   </script>
 </BaseLayout>
 
 <style>
-  .section-pad {
-    padding: var(--space-section) 0;
+  .members-page {
+    overflow: clip;
+    min-height: 100vh;
+    padding: 6.5rem 0 4rem;
+    background:
+      radial-gradient(circle at 50% 2%, rgba(88, 175, 229, 0.1), transparent 32rem),
+      var(--paper);
   }
 
-  .directory {
-    background: var(--surface);
+  .members-masthead {
+    position: relative;
+    display: grid;
+    min-height: 10rem;
+    justify-items: center;
+    align-content: center;
+    padding: 1.75rem 0 1.25rem;
+    text-align: center;
   }
 
-  .directory__intro {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
+  .members-masthead__backdrop {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    color: transparent;
+    font-family: var(--font-mono);
+    font-size: clamp(4.5rem, 8vw, 7rem);
+    font-weight: 800;
+    letter-spacing: -0.08em;
+    line-height: 1;
+    opacity: 0.48;
+    pointer-events: none;
+    transform: translateX(-50%);
+    -webkit-text-stroke: 1px var(--line-strong);
   }
 
-  .directory__count {
-    flex: 0 0 auto;
-    color: var(--muted);
+  .members-masthead > p {
+    position: relative;
+    color: var(--blue-700);
     font-family: var(--font-mono);
     font-size: var(--text-meta);
-  }
-
-  .directory__count strong {
-    color: var(--blue-700);
-    font-size: 1.15rem;
-  }
-
-  .directory__pending {
-    flex: 0 0 auto;
-    padding: 0.55rem 0.85rem;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: var(--paper);
-    color: var(--blue-700);
-    font-size: var(--text-small);
     font-weight: 700;
+    letter-spacing: 0.13em;
   }
 
-  .filters {
+  .members-masthead h1 {
+    position: relative;
+    margin-top: 0.4rem;
+    font-size: clamp(1.875rem, 3vw, 2.25rem);
+    font-weight: 680;
+    letter-spacing: -0.04em;
+    line-height: 1.15;
+  }
+
+  .cohort-directory {
     display: grid;
-    gap: 0.8rem;
-    margin-top: 3rem;
-    padding: 1.25rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    background: var(--paper);
+    gap: clamp(1.75rem, 3vw, 2.75rem);
+    margin-top: 0.75rem;
   }
 
-  .filter-group {
+  .cohort-group {
+    position: relative;
+    width: var(--pyramid-width);
+    margin-inline: auto;
+    scroll-margin-top: 6rem;
+  }
+
+  .cohort-heading {
+    position: relative;
     display: grid;
-    grid-template-columns: 4rem 1fr;
-    align-items: start;
-    gap: 1rem;
+    justify-items: center;
+    min-height: 5.25rem;
+    align-content: center;
+    text-align: center;
   }
 
-  .filter-group > span {
-    padding-top: 0.45rem;
-    color: var(--muted);
+  .cohort-heading h2 {
+    color: transparent;
     font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.1em;
+    font-size: clamp(3.5rem, 5.4vw, 4.75rem);
+    font-weight: 800;
+    letter-spacing: -0.08em;
+    line-height: 1;
+    opacity: 0.58;
+    transition: color 180ms ease;
+    -webkit-text-stroke: 1px var(--line-strong);
   }
 
-  .filter-group div {
+  .cohort-group:hover .cohort-heading h2 {
+    color: var(--surface-card);
+  }
+
+  .cohort-heading p {
+    position: relative;
+    margin-top: -0.55rem;
+    color: var(--ink-soft);
+    font-size: 0.875rem;
+  }
+
+  .member-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    justify-content: space-evenly;
+    gap: 0.35rem;
+    padding: 0;
+    margin: 0.65rem auto 0;
+    list-style: none;
   }
 
-  .filter-group button {
-    min-height: 2.75rem;
-    padding: 0.45rem 0.8rem;
-    border: 1px solid transparent;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--ink-soft);
-    font-size: var(--text-small);
-    cursor: pointer;
+  .member-entry {
+    position: relative;
+    z-index: 1;
+    width: fit-content;
+    max-width: 14rem;
+    flex: 0 1 auto;
+    min-width: 0;
   }
 
-  .filter-group button:hover {
-    border-color: var(--line-strong);
-    background: var(--surface);
-  }
-
-  .filter-group button.is-active {
-    border-color: var(--action-bg);
-    background: var(--action-bg);
-    color: var(--action-text);
-  }
-
-  .member-groups {
-    display: grid;
-    gap: 3.5rem;
-    margin-top: 3.75rem;
-  }
-
-  .member-group > header {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: end;
-    gap: 2rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--line-strong);
-  }
-
-  .member-group > header div > p {
-    color: var(--blue-700);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.11em;
-  }
-
-  .member-group > header h2 {
-    margin-top: 0.35rem;
-    font-size: var(--text-section);
-    font-weight: 650;
-    letter-spacing: var(--tracking-heading);
-  }
-
-  .member-group > header > p {
-    max-width: 32rem;
-    justify-self: end;
-    color: var(--muted);
-    line-height: 1.75;
-  }
-
-  .member-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  .member-group--sparse .member-grid {
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 20rem));
+  .member-entry:hover,
+  .member-entry:focus-within,
+  .member-entry.is-open {
+    z-index: 40;
   }
 
   .member-card {
     display: flex;
-    flex-direction: column;
-    padding: 1.2rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-    transition: border-color 180ms ease, transform 180ms ease;
+    width: max-content;
+    max-width: 100%;
+    min-height: 3.5rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.45rem;
+    border: 2px solid transparent;
+    border-radius: 0.75rem;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease;
   }
 
-  .member-card:hover {
-    border-color: var(--blue);
-    transform: translateY(-4px);
+  .member-entry:hover .member-card,
+  .member-entry:focus-within .member-card,
+  .member-entry.is-open .member-card {
+    border-color: rgba(68, 190, 226, 0.72);
+    background:
+      linear-gradient(115deg, rgba(81, 202, 220, 0.12), rgba(88, 175, 229, 0.08)),
+      var(--surface-card);
+    box-shadow: 0 0.4rem 1.25rem rgba(21, 87, 128, 0.09);
+    transform: translateY(-2px);
   }
 
-  .member-card[hidden],
-  .member-group[hidden] {
-    display: none;
+  .member-card:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
   }
 
   .member-card__avatar {
     display: grid;
-    aspect-ratio: 1.8;
+    width: 2.5rem;
+    flex: 0 0 2.5rem;
+    aspect-ratio: 1;
     overflow: hidden;
     place-items: center;
-    border-radius: var(--radius-md);
-    background:
-      radial-gradient(circle at 75% 20%, rgba(242, 140, 61, 0.24), transparent 7rem),
-      var(--blue-50);
+    border-radius: 50%;
+    background: var(--surface-card);
+    box-shadow: 0 0.35rem 1rem rgba(21, 64, 101, 0.11);
   }
 
-  .member-card__avatar span {
+  .member-card__avatar > span {
     color: var(--blue-700);
     font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 0.72rem;
+    font-weight: 760;
+    letter-spacing: 0.06em;
   }
 
   .member-card__avatar img {
@@ -392,134 +472,422 @@ const groups = [
     object-fit: cover;
   }
 
-  .member-card__meta {
+  .member-card__name {
+    flex: 0 0 auto;
+    overflow: hidden;
+    font-size: 0.9375rem;
+    font-weight: 620;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .member-card__identity {
     display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
+    overflow: hidden;
+    min-width: 0;
+    align-items: baseline;
+    gap: 0.3rem;
+    white-space: nowrap;
+  }
+
+  .member-card__sitenick {
+    overflow: hidden;
     color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    text-overflow: ellipsis;
   }
 
-  .member-card__meta span:last-child {
-    color: var(--orange);
-  }
-
-  .member-card h3 {
-    margin-top: 0.55rem;
-    font-size: 1.15rem;
-    font-weight: 650;
-  }
-
-  .member-card ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
+  .member-tooltip {
+    position: absolute;
+    z-index: 50;
+    bottom: calc(100% + 0.5rem);
+    left: 50%;
+    width: max-content;
+    max-width: min(22rem, calc(100vw - 1.5rem));
     padding: 0;
-    margin: 0.8rem 0 0;
-    list-style: none;
+    overflow: visible;
+    border: 1px solid var(--line);
+    border-radius: 0.8rem;
+    visibility: hidden;
+    background: var(--paper);
+    box-shadow: 0 0.85rem 2.5rem rgba(22, 64, 98, 0.16);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 0.35rem);
+    transition: opacity 150ms ease, transform 150ms ease, visibility 150ms;
   }
 
-  .member-card li {
-    padding: 0.25rem 0.5rem;
-    border-radius: 999px;
-    background: var(--blue-50);
-    color: var(--blue-700);
-    font-size: 0.8125rem;
+  .member-tooltip::before {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: 0.55rem;
+    content: '';
   }
 
-  .member-card__links {
+  .member-tooltip::after {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-card);
+    content: '';
+    transform: translate(-50%, -0.32rem) rotate(45deg);
+  }
+
+  .member-entry:hover .member-tooltip,
+  .member-entry:focus-within .member-tooltip,
+  .member-entry.is-open .member-tooltip {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+  }
+
+  .member-tooltip__site {
     display: flex;
-    gap: 1rem;
-    margin-top: auto;
-    padding-top: 1.2rem;
-    border-top: 1px solid var(--line);
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.8rem 0.8rem 0 0;
+    background: var(--paper);
+  }
+
+  .member-tooltip__avatar {
+    display: grid;
+    width: 2rem;
+    flex: 0 0 2rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--surface-card);
+    box-shadow: 0 0.2rem 0.75rem rgba(21, 64, 101, 0.12);
+  }
+
+  .member-tooltip__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .member-tooltip__avatar > span {
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+
+  .member-tooltip__identity {
+    display: grid;
+    overflow: hidden;
+    min-width: 0;
+    gap: 0.12rem;
+  }
+
+  .member-tooltip__identity strong {
+    overflow: hidden;
+    font-size: 0.9375rem;
+    font-weight: 680;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .member-tooltip__identity > a,
+  .member-tooltip__identity > span {
+    display: flex;
+    overflow: hidden;
+    min-width: 0;
+    align-items: baseline;
+    gap: 0.2rem;
     color: var(--muted);
     font-family: var(--font-mono);
-    font-size: var(--text-meta);
-  }
-
-  .member-card__links a {
-    color: var(--blue-700);
+    font-size: 0.75rem;
     text-decoration: none;
   }
 
-  .member-card--placeholder {
-    border-style: dashed;
+  .member-tooltip__identity > a span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .member-tooltip__identity i {
+    flex: 0 0 auto;
+    font-size: 0.58rem;
+    font-style: normal;
+  }
+
+  .member-tooltip__identity > a:hover,
+  .member-tooltip__identity > a:focus-visible {
+    color: var(--blue-700);
+  }
+
+  .member-tooltip__desc {
+    position: relative;
+    overflow: hidden;
+    padding: 0.45rem 0.75rem 0.55rem;
+    border-radius: 0 0 0.8rem 0.8rem;
     background: var(--surface-card);
   }
 
-  .directory__empty {
-    margin-top: 3rem;
+  .member-tooltip__desc > *:not(.member-tooltip__year) {
+    position: relative;
+    z-index: 1;
   }
 
-  .directory__empty[hidden] {
+  .member-tooltip__contacts {
+    display: grid;
+    min-height: 2.25rem;
+    align-content: center;
+    gap: 0.15rem;
+  }
+
+  .member-tooltip__contact {
+    display: flex;
+    min-height: 2rem;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .member-tooltip__brand {
+    display: grid;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 1.25rem;
+    place-items: center;
+    color: var(--muted);
+  }
+
+  .member-tooltip__brand svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .member-tooltip__brand--qq svg {
+    fill: currentColor;
+  }
+
+  .member-tooltip__brand--github svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .member-tooltip__value {
+    min-width: 0;
+    flex: 0 1 auto;
+    overflow: hidden;
+    width: fit-content;
+    max-width: 100%;
+    padding-bottom: 0.08rem;
+    border-bottom: 1px solid currentColor;
+    color: var(--ink-soft);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.25;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  a.member-tooltip__value:hover,
+  a.member-tooltip__value:focus-visible {
+    color: var(--blue-700);
+  }
+
+  .member-tooltip__copy {
+    display: grid;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex: 0 0 1.75rem;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 150ms ease, background-color 150ms ease, transform 150ms ease;
+  }
+
+  .member-tooltip__copy:hover,
+  .member-tooltip__copy:focus-visible,
+  .member-tooltip__copy.is-copied {
+    background: rgba(88, 175, 229, 0.11);
+    color: var(--blue-700);
+    transform: translateY(-1px);
+  }
+
+  .member-tooltip__copy svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  .member-tooltip__check-icon {
     display: none;
   }
 
-  .privacy-note {
-    padding: var(--space-section) 0;
-    background: var(--deep);
-    color: var(--on-deep);
+  .member-tooltip__copy.is-copied .member-tooltip__copy-icon {
+    display: none;
   }
 
-  .privacy-note__inner {
+  .member-tooltip__copy.is-copied .member-tooltip__check-icon {
+    display: block;
+  }
+
+  .member-tooltip__contacts > span {
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+
+  .member-tooltip__year {
+    position: absolute;
+    right: -0.1rem;
+    bottom: -0.45rem;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1;
+    opacity: 0.045;
+    pointer-events: none;
+  }
+
+  .cohort-empty {
+    min-height: 3.5rem;
+    padding: 1rem 0;
+    color: var(--muted);
+    font-size: 0.875rem;
     text-align: center;
   }
 
-  .privacy-note span {
-    color: var(--blue-300);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.12em;
-  }
-
-  .privacy-note h2 {
-    margin-top: 1rem;
-    font-size: var(--text-section);
-    font-weight: 650;
-    letter-spacing: var(--tracking-heading);
-  }
-
-  .privacy-note p {
-    max-width: 43rem;
-    margin: 1rem auto 0;
-    color: var(--on-deep-muted);
-    line-height: 1.8;
-  }
-
-  .privacy-note .button {
-    margin-top: 2rem;
-  }
-
   @media (max-width: 900px) {
-    .member-grid {
-      grid-template-columns: 1fr 1fr;
+    .cohort-group {
+      width: 100%;
+    }
+
+    .member-entry {
+      max-width: 12.5rem;
     }
   }
 
-  @media (max-width: 640px) {
-    .directory__intro {
-      align-items: start;
-      flex-direction: column;
+  @media (max-width: 680px) {
+    .members-page {
+      padding: 6rem 0 3rem;
     }
 
-    .filter-group {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
+    .members-masthead {
+      min-height: 8.75rem;
+      padding-top: 1.25rem;
     }
 
-    .member-group > header {
-      grid-template-columns: 1fr;
+    .members-masthead__backdrop {
+      font-size: 4.4rem;
     }
 
-    .member-group > header > p {
-      justify-self: start;
+    .members-masthead h1 {
+      font-size: 1.75rem;
     }
 
-    .member-grid {
-      grid-template-columns: 1fr;
+    .cohort-directory {
+      gap: 1.35rem;
+      margin-top: 0.25rem;
+    }
+
+    .cohort-heading {
+      min-height: 4.5rem;
+    }
+
+    .cohort-heading h2 {
+      font-size: 3.25rem;
+    }
+
+    .cohort-heading p {
+      margin-top: -0.45rem;
+      font-size: 0.8125rem;
+    }
+
+    .member-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.25rem 0.4rem;
+      margin-top: 0.45rem;
+    }
+
+    .member-entry,
+    .member-card {
+      width: 100%;
+      max-width: none;
+    }
+
+    .member-list > .member-entry:last-child:nth-child(odd) {
+      width: calc(50% - 0.2rem);
+      justify-self: center;
+      grid-column: 1 / -1;
+    }
+
+    .member-card {
+      min-height: 3.25rem;
+      gap: 0.5rem;
+      padding: 0.35rem 0.4rem;
+    }
+
+    .member-card__avatar {
+      width: 2.35rem;
+      flex-basis: 2.35rem;
+    }
+
+    .member-card__name {
+      font-size: 0.875rem;
+    }
+
+    .member-entry:hover .member-tooltip,
+    .member-entry:focus-within .member-tooltip {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 0.35rem);
+    }
+
+    .member-entry.is-open .member-tooltip {
+      position: fixed;
+      z-index: 150;
+      bottom: 1rem;
+      left: 50%;
+      display: block;
+      width: max-content;
+      max-width: calc(100vw - 1.5rem);
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%);
+    }
+
+    .member-entry.is-open .member-tooltip::before,
+    .member-entry.is-open .member-tooltip::after {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cohort-heading h2,
+    .member-card,
+    .member-tooltip {
+      transition: none;
     }
   }
 </style>

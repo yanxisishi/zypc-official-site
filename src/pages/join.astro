@@ -1,9 +1,6 @@
 ---
-import { getEntry } from 'astro:content';
-import PageHero from '../components/PageHero.astro';
-import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import { getCollection, getEntry } from 'astro:content';
 import RecruitmentContact from '../components/RecruitmentContact.astro';
-import SectionHeading from '../components/SectionHeading.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const recruitmentEntry = await getEntry('recruitment', 'main');
@@ -12,515 +9,494 @@ if (!recruitmentEntry || !siteEntry) throw new Error('缺少纳新或站点配�
 
 const recruitment = recruitmentEntry.data;
 const site = siteEntry.data;
-const statusMap = {
-  closed: { label: '赛程待公布', detail: '纳新交流群全年保留，具体赛程与报名安排确认后将在官网更新。' },
-  preparing: { label: '筹备中', detail: '本届纳新信息正在准备，欢迎先加入交流群并留意官网更新。' },
-  open: { label: '报名进行中', detail: '欢迎查看本页信息并加入纳新交流群。' },
-  ended: { label: '本届已结束', detail: '本届赛程虽已结束，交流群仍会保留，下一学年将统一更新届别与入口。' },
-};
-const currentStatus = statusMap[recruitment.status];
+const interviewArticles = (await getCollection('articles'))
+  .filter((article) => !article.data.draft && /^sec-interview-\d{4}$/.test(article.id))
+  .map((article) => ({
+    id: article.id,
+    year: Number(article.id.slice(-4)),
+  }))
+  .sort((a, b) => b.year - a.year);
+
+const interviewSteps = [
+  {
+    title: '第一次面试：基础能力',
+    description:
+      '主要了解 C 语言和计算机基础，包括代码阅读、编程思路和表达能力。不会的题目可以直接说明，清楚讲出已经想到哪里更重要。',
+  },
+  {
+    title: '第二次面试：快速学习',
+    description:
+      '主要观察接触陌生内容后的学习过程。具体任务和准备时间会随当届通知说明，参加时需要携带自己的电脑。',
+  },
+  {
+    title: '第三次面试：最终交流',
+    description:
+      '与通过前两轮的同学进一步交流，了解性格、学习方向、时间投入，以及对未来成长的期待。',
+  },
+];
+
+const faqItems = [
+  {
+    question: '智邮普创是什么？',
+    answer:
+      '智邮普创工作室是信息中心下属的学生技术实验室，位于长安校区西区图书馆五楼。工作室参与数字校园建设与维护，也持续开展网络安全学习和竞赛实践。',
+  },
+  {
+    question: '我怎样才能加入智邮普创？',
+    answer:
+      '关注公众号“智邮普创实验室”，并加入 QQ 群 1057111048。安全组通过三次面试了解基础、学习能力和个人方向；开发组为新增方向，具体安排以公众号和 QQ 群通知为准。',
+  },
+  {
+    question: '现在应该从哪里开始准备？',
+    answer:
+      '先学习 C 语言和计算机基础，再接触常用 Linux 命令与虚拟机。比起赶进度，更重要的是理解每个问题，记录自己的尝试过程，并学会提出具体、有上下文的问题。',
+  },
+  {
+    question: 'CTF 和新生赛是什么？',
+    answer:
+      'CTF 是通过解题获取 flag 的网络安全竞赛，常见方向包括 Web、Reverse、Pwn、Crypto 和 Misc。新生赛帮助刚入门的同学认识方向、体验比赛，也是了解学习成果的参考之一。',
+  },
+  {
+    question: '第一次面试会不会很难？',
+    answer:
+      '题目会有一定区分度，但不要求每个人完成全部内容。我们更关注分析问题、表达思路和继续尝试的过程，认真完成自己能做到的部分即可。',
+  },
+  {
+    question: '加入工作室能获得什么？',
+    answer:
+      '你会遇到愿意一起学习的同伴和可以交流的学长学姐，也有机会接触真实项目、安全研究和竞赛协作。工作室提供学习环境与实践机会，真正的成长仍然来自持续投入。',
+  },
+  {
+    question: '参加第一次面试需要准备什么？',
+    answer:
+      '请携带可以正常编程的电脑，并提前整理自己想询问的问题。纸质简历可以自愿准备，方便介绍经历和兴趣，但不作强制要求。',
+  },
+];
 ---
 
 <BaseLayout
   title="加入我们"
-  description="了解智邮普创工作室的培养方式、纳新要求、流程与联系方式。"
+  description="智邮普创工作室加入说明、安全组面试流程、准备建议与长期联系方式。"
 >
-  <PageHero
-    index="06"
-    eyebrow="JOIN ZYPC / 加入我们"
-    title="出色的技术，来自持续的好奇与行动"
-    description="智邮普创工作室为学校公益实验室，不收取任何费用。每届新生由学长学姐无偿指导；我们不以专业和学院设限，更看重你解决问题的主动性与持续投入。"
-    meta="OPEN TO ALL MAJORS · FREE · AUTUMN"
-  />
+  <article class="join-document" aria-labelledby="join-title">
+    <header class="join-header">
+      <p class="join-kicker">JOIN / 加入我们</p>
+      <h1 id="join-title">加入智邮普创</h1>
+      <p class="join-lead">
+        智邮普创面向全校大一新生，不限学院和专业。你不需要在加入前已经很强，我们更看重主动学习、认真思考和持续投入。
+      </p>
+      <ul class="join-summary">
+        <li>信息中心下属学生技术实验室</li>
+        <li>参与数字校园实践与网络安全研究</li>
+        <li>公益免费，不收取培训费用</li>
+      </ul>
+    </header>
 
-  <section class="status-section">
-    <div class="shell">
-      <div class:list={['status-card', `status-card--${recruitment.status}`]} data-reveal>
-        <div class="status-card__signal"><i></i><span>{recruitment.cohort} RECRUITMENT</span></div>
-        <div>
-          <p>当前状态</p>
-          <h2>{currentStatus.label}</h2>
-          <span>{currentStatus.detail}</span>
-        </div>
-        <div class="status-card__updated">
-          <span>LAST UPDATED</span>
-          <time datetime={recruitment.updatedAt.toISOString()}>
-            {new Intl.DateTimeFormat('zh-CN').format(recruitment.updatedAt)}
-          </time>
-        </div>
-      </div>
-    </div>
-  </section>
+    <nav class="join-nav" aria-label="页面目录">
+      <a href="#contact">联系方式</a>
+      <a href="#directions">加入方向</a>
+      <a href="#process">安全组流程</a>
+      <a href="#interview-papers">历年一面题目</a>
+      <a href="#preparation">如何准备</a>
+      <a href="#faq">常见问题</a>
+    </nav>
 
-  <section class="fit section-pad">
-    <div class="shell">
-      <SectionHeading
-        eyebrow="WHAT WE VALUE / 我们看重什么"
-        title="我们不要求你已经很强，但希望你愿意认真走下去"
-      />
-      <div class="fit__grid">
-        <article data-reveal>
-          <span>01</span>
-          <h3>主动探索</h3>
-          <p>遇到陌生问题，愿意先查资料、动手验证，再带着具体过程寻求帮助。</p>
-        </article>
-        <article data-reveal>
-          <span>02</span>
-          <h3>持续投入</h3>
-          <p>安全学习没有捷径。比短期热情更重要的是能长期安排时间、完成复盘。</p>
-        </article>
-        <article data-reveal>
-          <span>03</span>
-          <h3>合作与责任</h3>
-          <p>尊重授权边界，愿意沟通、记录和分享，对自己的行为和团队结果负责。</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="training section-pad">
-    <div class="shell training__grid">
-      <div data-reveal>
-        <PhotoPlaceholder label="纳新与训练现场" index="RECRUITMENT / 01" tall />
-      </div>
-      <div>
-        <SectionHeading
-          eyebrow="GROWTH PATH / 培养路径"
-          title="从基础训练，到独立面对复杂问题"
-          description="具体安排会随每届情况调整，但基础、方向、协作与沉淀始终贯穿培养过程。"
-        />
-        <ol class="training__steps">
-          <li data-reveal><span>01</span><div><h3>基础训练</h3><p>计算机基础、网络、Linux 与编程能力。</p></div></li>
-          <li data-reveal><span>02</span><div><h3>方向探索</h3><p>通过题目与分享接触不同安全方向，找到兴趣点。</p></div></li>
-          <li data-reveal><span>03</span><div><h3>赛事协作</h3><p>进入团队训练和公开赛事，学习分工、沟通与复盘。</p></div></li>
-          <li data-reveal><span>04</span><div><h3>经验传承</h3><p>把方法写成文章、工具或课程，帮助下一届成员。</p></div></li>
-        </ol>
-      </div>
-    </div>
-  </section>
-
-  <section class="process section-pad">
-    <div class="shell">
-      <SectionHeading
-        eyebrow="RECRUITMENT FLOW / 纳新流程"
-        title="秋季新学期，面向全校大一新生"
-        description={recruitment.summary}
-      />
-      <div class="process__track">
-        <article data-reveal><span>STEP 01</span><h3>关注通知</h3><p>官网与校内渠道公布赛程、群号和报名方式。</p></article>
-        <article data-reveal><span>STEP 02</span><h3>参加纳新赛</h3><p>通过开放题目认识方向，也让我们看到你的思考过程。</p></article>
-        <article data-reveal><span>STEP 03</span><h3>阶段训练</h3><p>进入集中学习与考核，在反馈中补齐基础和方法。</p></article>
-        <article data-reveal><span>STEP 04</span><h3>成为成员</h3><p>完成阶段要求后加入团队，继续参与训练与竞赛。</p></article>
-      </div>
-    </div>
-  </section>
-
-  <section class="contact-section section-pad" id="recruitment-contact">
-    <div class="shell contact-grid">
+    <section id="contact" aria-labelledby="contact-title">
+      <h2 id="contact-title">联系方式</h2>
+      <p>具体场次和安排以公众号与纳新交流群通知为准。</p>
       <RecruitmentContact
-        cohort={recruitment.cohort}
         qqGroup={recruitment.qqGroup}
-        qrCode={recruitment.qrCode}
-        status={recruitment.status}
+        wechatAccount={recruitment.wechatAccount}
         variant="full"
-        deadline={recruitment.deadline}
-        applyUrl={recruitment.applyUrl}
       />
-      <div class="contact-card" data-reveal>
-        <p class="contact-card__label">LOCATION</p>
-        <h3>线下位置</h3>
-        <p>{site.location}</p>
-        <div class="contact-card__coordinate">WEST LIBRARY<br />FLOOR 05</div>
+      <div class="contact-location">
+        <strong>线下地点</strong>
+        <span>{site.location}</span>
       </div>
-      <div class="contact-card" data-reveal>
-        <p class="contact-card__label">ONLINE</p>
-        <h3>公开主页</h3>
-        <a href={site.github} target="_blank" rel="noreferrer">GitHub Organization ↗</a>
-        {site.email && <a href={`mailto:${site.email}`}>{site.email}</a>}
-        {!site.email && <p class="contact-card__muted">公开邮箱待配置</p>}
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="faq section-pad">
-    <div class="shell faq__grid">
-      <SectionHeading
-        eyebrow="FAQ / 常见问题"
-        title="加入之前，你可能还想知道"
-      />
-      <div>
-        <details>
-          <summary>不是计算机相关专业可以参加吗？</summary>
-          <p>可以。纳新面向全校大一新生，不限学院和专业。是否愿意主动学习，比已有专业背景更重要。</p>
-        </details>
-        <details>
-          <summary>加入工作室需要缴费吗？</summary>
-          <p>不需要。工作室为学校公益实验室性质，培养和指导均不收取费用。</p>
-        </details>
-        <details>
-          <summary>完全没有安全基础怎么办？</summary>
-          <p>纳新和训练会从基础能力开始，但需要你投入足够时间，并能根据路线主动学习与复盘。</p>
-        </details>
-        <details>
-          <summary>纳新群会在赛程结束后关闭吗？</summary>
-          <p>不会从官网隐藏。当前届别的交流群会全年展示，即使本届赛程已经结束也可以先加入了解；下一学年会统一更新群号和二维码。</p>
-        </details>
-      </div>
-    </div>
-  </section>
+    <section id="directions" aria-labelledby="directions-title">
+      <h2 id="directions-title">加入方向</h2>
+
+      <h3>安全组</h3>
+      <p>
+        围绕 Web 安全、二进制安全、逆向工程、密码学和电子取证等方向学习，通过 CTF、新生赛、日常训练与复盘逐步建立安全能力。
+      </p>
+
+      <h3>开发组</h3>
+      <p>
+        开发组是本届新增方向，具体技术方向、培养内容和选拔方式仍在确认中。请以公众号“智邮普创实验室”和纳新交流群发布的信息为准。
+      </p>
+    </section>
+
+    <section id="process" aria-labelledby="process-title">
+      <h2 id="process-title">安全组加入流程</h2>
+      <p>安全组通常包含三次面试，具体题目、场次和准备时间以当届通知为准。</p>
+      <ol class="process-list">
+        {
+          interviewSteps.map((step) => (
+            <li>
+              <strong>{step.title}</strong>
+              <p>{step.description}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section id="interview-papers" aria-labelledby="interview-papers-title">
+      <h2 id="interview-papers-title">历年一面题目</h2>
+      <p>以下题目来自工作室往届安全组第一次面试，可用于了解考查范围和题目形式。</p>
+      <ul class="interview-paper-list">
+        {
+          interviewArticles.map((article) => (
+            <li class="interview-paper-entry">
+              <a
+                class="interview-paper-year"
+                href={`/articles/${article.id}/`}
+                aria-label={`${article.year} 年面试题`}
+              >
+                {article.year}
+              </a>
+              <a class="interview-paper-article" href={`/articles/${article.id}/`}>
+                <strong class="interview-paper-title">
+                  智邮普创工作室 SEC 组 {article.year} 年第一次面试题
+                </strong>
+              </a>
+              <a
+                class="interview-paper-download"
+                href={`/downloads/interviews/zypc-sec-interview-${article.year}.pdf`}
+                download={`智邮普创工作室-SEC组-${article.year}年第一次面试题.pdf`}
+              >
+                PDF 下载 <span aria-hidden="true">↓</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section id="preparation" aria-labelledby="preparation-title">
+      <h2 id="preparation-title">如何准备</h2>
+      <ul>
+        <li><strong>C 语言：</strong>理解变量、流程控制、函数、指针和基础数据结构，可以参考《C Primer Plus》。</li>
+        <li><strong>计算机基础：</strong>熟悉常用 Linux 命令，尝试在虚拟机中安装和使用 Linux。</li>
+        <li><strong>思考习惯：</strong>遇到问题先查资料、动手验证，再整理自己尝试过的方法。</li>
+        <li><strong>提问能力：</strong>说明问题背景、预期结果和已经做过的尝试，推荐阅读《提问的智慧》。</li>
+      </ul>
+
+      <h3>第一次面试前</h3>
+      <ul>
+        <li>携带可以正常编程的电脑。</li>
+        <li>整理自己真正想问的问题。</li>
+        <li>纸质简历可以携带，但不作强制要求。</li>
+        <li>不会的题目不必硬猜，清楚说明自己的思考过程。</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="ctf-title">
+      <h2 id="ctf-title">关于 CTF 与新生赛</h2>
+      <p>
+        CTF 是通过解决网络安全题目获取 flag 的竞赛。新生赛面向基础阶段的同学，目的是帮助大家认识不同安全方向、体验比赛，并检验一段时间的学习成果。
+      </p>
+      <p>
+        比赛成绩会作为参考，但不是唯一标准。我们同样关注思考过程、学习态度、持续投入和交流表达。
+      </p>
+    </section>
+
+    <section id="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">常见问题</h2>
+      <ul class="faq-list">
+        {
+          faqItems.map((item) => (
+            <li>
+              <strong>{item.question}</strong>
+              <p>{item.answer}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </article>
 </BaseLayout>
 
 <style>
-  .section-pad {
-    padding: var(--space-section) 0;
+  .join-document {
+    width: min(calc(100% - 2rem), 68rem);
+    padding: 7.5rem 0 6rem;
+    margin: 0 auto;
+    color: var(--ink);
   }
 
-  .status-section {
-    padding: 2rem 0 0;
-    background: var(--surface);
+  .join-header {
+    max-width: 64rem;
   }
 
-  .status-card {
-    display: grid;
-    grid-template-columns: 0.7fr 2fr 0.8fr;
-    align-items: center;
-    gap: 2rem;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-    border: 1px solid var(--line);
-    border-radius: var(--radius-xl);
-    background: var(--paper);
-  }
-
-  .status-card__signal {
+  .join-kicker {
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.09em;
-  }
-
-  .status-card__signal i {
-    width: 0.65rem;
-    height: 0.65rem;
-    border-radius: 50%;
-    background: var(--muted);
-    box-shadow: 0 0 0 0.4rem rgba(100, 115, 138, 0.12);
-  }
-
-  .status-card--open .status-card__signal i {
-    background: var(--success);
-    box-shadow: 0 0 0 0.4rem rgba(43, 155, 114, 0.14);
-  }
-
-  .status-card > div:nth-child(2) > p {
+    gap: 0.65rem;
     color: var(--blue-700);
-    font-size: var(--text-small);
-    font-weight: 650;
-  }
-
-  .status-card h2 {
-    margin-top: 0.2rem;
-    font-size: var(--text-section);
-    font-weight: 650;
-    letter-spacing: var(--tracking-heading);
-  }
-
-  .status-card > div:nth-child(2) > span {
-    display: block;
-    margin-top: 0.45rem;
-    color: var(--muted);
-  }
-
-  .status-card__updated {
-    display: grid;
-    justify-items: end;
-    gap: 0.3rem;
-    color: var(--muted);
     font-family: var(--font-mono);
-    font-size: var(--text-meta);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
   }
 
-  .fit {
-    background: var(--surface);
+  .join-kicker::before {
+    width: 1.45rem;
+    height: 1px;
+    background: currentColor;
+    content: '';
   }
 
-  .fit__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-top: 3rem;
+  .join-header h1 {
+    margin-top: 0.75rem;
+    font-size: clamp(1.8rem, 2.5vw, 2rem);
+    font-weight: 680;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
   }
 
-  .fit article {
-    min-height: 15rem;
-    padding: 1.6rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    background: var(--paper);
+  .join-lead {
+    margin-top: 1rem;
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    line-height: 1.85;
   }
 
-  .fit article > span {
-    color: var(--orange);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
+  .join-summary {
+    margin-top: 1.25rem;
   }
 
-  .fit h3 {
-    margin-top: 2.75rem;
-    font-size: 1.3rem;
-  }
-
-  .fit article p {
-    margin-top: 0.7rem;
-    color: var(--muted);
-    line-height: 1.8;
-  }
-
-  .training {
-    background: var(--paper);
-  }
-
-  .training__grid {
-    display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    align-items: center;
-    gap: clamp(3rem, 8vw, 7rem);
-  }
-
-  .training__steps {
-    padding: 0;
-    border-top: 1px solid var(--line-strong);
-    margin: 3rem 0 0;
-    list-style: none;
-  }
-
-  .training__steps li {
-    display: grid;
-    grid-template-columns: 2.5rem 1fr;
-    gap: 1rem;
-    padding: 1.3rem 0;
+  .join-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.35rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
+    margin-top: 2.25rem;
   }
 
-  .training__steps li > span {
-    color: var(--orange);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-  }
-
-  .training__steps h3 {
-    font-size: 1.08rem;
-  }
-
-  .training__steps p {
-    margin-top: 0.35rem;
+  .join-nav a {
     color: var(--muted);
-  }
-
-  .process {
-    background: var(--surface);
-  }
-
-  .process__track {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    margin-top: 3rem;
-    border-top: 1px solid var(--line-strong);
-    border-bottom: 1px solid var(--line-strong);
-  }
-
-  .process__track article {
-    min-height: 13.5rem;
-    padding: 1.5rem;
-    border-right: 1px solid var(--line);
-  }
-
-  .process__track article:last-child {
-    border-right: 0;
-  }
-
-  .process__track span {
-    color: var(--blue-700);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-  }
-
-  .process__track h3 {
-    margin-top: 2.75rem;
-    font-size: 1.3rem;
-  }
-
-  .process__track p {
-    margin-top: 0.6rem;
-    color: var(--muted);
-    line-height: 1.75;
-  }
-
-  .contact-section {
-    background: var(--blue-100);
-  }
-
-  .contact-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 0.8fr;
-    gap: 1rem;
-  }
-
-  .contact-card {
-    position: relative;
-    overflow: hidden;
-    padding: clamp(1.5rem, 3vw, 2.2rem);
-    border: 1px solid rgba(53, 129, 182, 0.18);
-    border-radius: var(--radius-xl);
-    background: var(--surface-card);
-  }
-
-  .contact-card__label {
-    color: var(--blue-700);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.1em;
-  }
-
-  .contact-card h3 {
-    margin-top: 2.2rem;
-    font-size: 1.5rem;
-  }
-
-  .contact-card > p:not(.contact-card__label) {
-    max-width: 21rem;
-    margin-top: 0.6rem;
-    color: var(--muted);
-  }
-
-  .contact-card > a {
-    display: block;
-    width: fit-content;
-    margin-top: 0.7rem;
-    color: var(--blue-700);
-    font-weight: 650;
+    font-size: var(--text-small);
     text-decoration: none;
   }
 
-  .contact-card__coordinate {
-    position: absolute;
-    right: -0.5rem;
-    bottom: -0.5rem;
-    color: rgba(39, 127, 187, 0.08);
-    font-family: var(--font-mono);
-    font-size: 3rem;
-    font-weight: 800;
-    line-height: 0.9;
-    text-align: right;
+  .join-nav a::before {
+    color: var(--blue);
+    content: '# ';
   }
 
-  .contact-card__muted {
-    font-size: var(--text-small);
-  }
-
-  .faq {
-    background: var(--surface);
-  }
-
-  .faq__grid {
-    display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: clamp(3rem, 8vw, 7rem);
-  }
-
-  .faq details {
-    padding: 1.3rem 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .faq details:first-child {
-    border-top: 1px solid var(--line);
-  }
-
-  .faq summary {
-    position: relative;
-    padding-right: 2rem;
-    color: var(--ink);
-    font-weight: 650;
-    cursor: pointer;
-    list-style: none;
-  }
-
-  .faq summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .faq summary::after {
-    position: absolute;
-    top: 0;
-    right: 0.2rem;
+  .join-nav a:hover,
+  .join-nav a:focus-visible {
     color: var(--blue-700);
-    content: '+';
   }
 
-  .faq details[open] summary::after {
-    content: '−';
+  section {
+    scroll-margin-top: 6rem;
+    margin-top: 3.4rem;
   }
 
-  .faq details p {
-    max-width: 39rem;
-    padding-top: 0.9rem;
-    color: var(--muted);
+  section h2 {
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+    font-weight: 680;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+  }
+
+  section h3 {
+    margin-top: 1.75rem;
+    font-size: 1.08rem;
+    font-weight: 680;
+  }
+
+  section > p,
+  section li p {
+    margin-top: 0.8rem;
+    color: var(--ink-soft);
+    line-height: 1.85;
+  }
+
+  section ul,
+  section ol {
+    padding-left: 1.4rem;
+    margin-top: 1rem;
+  }
+
+  section li {
+    padding-left: 0.2rem;
+    margin-top: 0.65rem;
+    color: var(--ink-soft);
     line-height: 1.8;
   }
 
-  @media (max-width: 880px) {
-    .status-card,
-    .training__grid,
-    .faq__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .status-card__updated {
-      justify-items: start;
-    }
-
-    .fit__grid,
-    .process__track {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .process__track article:nth-child(2) {
-      border-right: 0;
-    }
-
-    .process__track article:nth-child(-n + 2) {
-      border-bottom: 1px solid var(--line);
-    }
-
-    .contact-grid {
-      grid-template-columns: 1fr;
-    }
-
+  section li::marker {
+    color: var(--blue);
   }
 
-  @media (max-width: 560px) {
-    .fit__grid,
-    .process__track,
-    .contact-placeholder {
+  section li strong {
+    color: var(--ink);
+    font-weight: 680;
+  }
+
+  .contact-location {
+    display: grid;
+    grid-template-columns: 8rem minmax(0, 1fr);
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .contact-location strong {
+    font-size: var(--text-small);
+  }
+
+  .contact-location span {
+    color: var(--ink-soft);
+  }
+
+  .process-list li + li {
+    margin-top: 1rem;
+  }
+
+  .process-list li p {
+    margin-top: 0.25rem;
+  }
+
+  .interview-paper-list {
+    padding: 0;
+    border-top: 1px solid var(--line);
+    margin-top: 1rem;
+    list-style: none;
+  }
+
+  .interview-paper-list .interview-paper-entry {
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.15rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+    margin: 0;
+  }
+
+  .interview-paper-year {
+    justify-self: start;
+    width: fit-content;
+    color: var(--blue-700);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+
+  .interview-paper-title {
+    min-width: 0;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    transition: color 160ms ease;
+  }
+
+  .interview-paper-article {
+    justify-self: start;
+    width: fit-content;
+    max-width: 100%;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .interview-paper-year:hover,
+  .interview-paper-year:focus-visible,
+  .interview-paper-article:hover .interview-paper-title,
+  .interview-paper-article:focus-visible .interview-paper-title {
+    color: var(--blue-700);
+  }
+
+  .interview-paper-download {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 2rem;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 0.45rem;
+    background: var(--surface-subtle);
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+    line-height: 1;
+    text-decoration: none;
+  }
+
+  .interview-paper-download:hover,
+  .interview-paper-download:focus-visible {
+    border-color: var(--blue);
+    background: var(--blue-100);
+    color: var(--blue-700);
+  }
+
+  .interview-paper-download span {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .faq-list {
+    list-style: disc;
+  }
+
+  .faq-list li {
+    margin-top: 1.15rem;
+  }
+
+  .faq-list li p {
+    margin-top: 0.25rem;
+  }
+
+  @media (max-width: 600px) {
+    .join-document {
+      width: min(calc(100% - 1.5rem), 68rem);
+      padding-top: 6.25rem;
+      padding-bottom: 4rem;
+    }
+
+    .join-header h1 {
+      font-size: 1.8rem;
+    }
+
+    .join-lead {
+      font-size: 1rem;
+    }
+
+    section {
+      margin-top: 2.8rem;
+    }
+
+    .contact-location {
       grid-template-columns: 1fr;
+      gap: 0.3rem;
     }
 
-    .process__track article {
-      min-height: auto;
-      border-right: 0;
-      border-bottom: 1px solid var(--line);
+    .interview-paper-list .interview-paper-entry {
+      grid-template-columns: 3.25rem minmax(0, 1fr);
+      align-items: flex-start;
+      gap: 0.35rem 0.75rem;
     }
 
-    .process__track article:last-child {
-      border-bottom: 0;
+    .interview-paper-title {
+      font-size: 0.92rem;
     }
 
-    .process__track h3 {
-      margin-top: 2rem;
+    .interview-paper-download {
+      grid-column: 2;
+      justify-self: start;
+      margin-top: 0.25rem;
     }
-
   }
 </style>

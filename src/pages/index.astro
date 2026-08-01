@@ -8,30 +8,40 @@ import '../styles/home.css';
 const allArticles = (await getCollection('articles'))
   .filter((entry) => !entry.data.draft)
   .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
-const articles = allArticles.filter((entry) => !entry.data.sample).slice(0, 3);
-const honors = await getCollection('honors');
+const articles = allArticles.slice(0, 3);
 
 const recruitmentEntry = await getEntry('recruitment', 'main');
-const siteEntry = await getEntry('siteSettings', 'main');
-if (!recruitmentEntry || !siteEntry) throw new Error('缺少纳新或站点配置');
+if (!recruitmentEntry) throw new Error('缺少纳新配置');
 const recruitment = recruitmentEntry.data;
-const site = siteEntry.data;
 
-const facts = [
+const portals = [
   {
-    value: String(site.founded),
-    label: '成立年份',
-    detail: '持续在真实校园场景中实践',
+    index: '01',
+    href: '/about/',
+    label: '关于我们',
+    detail: '团队介绍与努力方向',
+    icon: 'about',
   },
   {
-    value: String(honors.length),
-    label: '已核实赛场记录',
-    detail: '公开记录仍在持续整理',
+    index: '02',
+    href: '/members/',
+    label: '团队成员',
+    detail: '现役与往届成员',
+    icon: 'members',
   },
   {
-    value: '5F',
-    label: '长安校区西区图书馆',
-    detail: '实验室线下位置',
+    index: '03',
+    href: '/honors/',
+    label: '荣誉成果',
+    detail: '组内成员的赛场记录',
+    icon: 'honors',
+  },
+  {
+    index: '04',
+    href: '/join/',
+    label: '加入我们',
+    detail: '纳新流程与联系方式',
+    icon: 'join',
   },
 ];
 
@@ -57,14 +67,10 @@ const formatDate = (date: Date) =>
             西安邮电大学信息中心学生技术团队，专注数字校园实践与网络安全研究。
           </p>
           <RecruitmentContact
-            cohort={recruitment.cohort}
+            cohort="2026"
             qqGroup={recruitment.qqGroup}
-            qrCode={recruitment.qrCode}
-            status={recruitment.status}
+            wechatAccount={recruitment.wechatAccount}
           />
-          <div class="home-intro__actions">
-            <a class="button" href="/about/">了解团队 <span aria-hidden="true">→</span></a>
-          </div>
         </div>
 
         <div class="home-intro__visual" data-reveal>
@@ -76,19 +82,45 @@ const formatDate = (date: Date) =>
         </div>
       </div>
 
-      <dl class="home-facts" aria-label="团队概况" data-reveal>
+      <nav class="home-portals" aria-label="首页快捷入口" data-reveal>
         {
-          facts.map((fact) => (
-            <div>
-              <dt>
-                <strong>{fact.value}</strong>
-                <span>{fact.label}</span>
-              </dt>
-              <dd>{fact.detail}</dd>
-            </div>
+          portals.map((portal) => (
+            <a class={`home-portal home-portal--${portal.icon}`} href={portal.href}>
+              <span class="home-portal__index">{portal.index}</span>
+              <div>
+                <strong>{portal.label}</strong>
+                <small>{portal.detail}</small>
+              </div>
+              <span class="home-portal__link">进入 <i aria-hidden="true">→</i></span>
+              <svg class="home-portal__art" viewBox="0 0 96 96" aria-hidden="true">
+                <use href={`#home-icon-${portal.icon}`}></use>
+              </svg>
+            </a>
           ))
         }
-      </dl>
+      </nav>
+
+      <svg class="home-symbols" aria-hidden="true">
+        <symbol id="home-icon-about" viewBox="0 0 96 96">
+          <path d="M18 20h45a15 15 0 0 1 15 15v41H33a15 15 0 0 1-15-15V20Z"></path>
+          <path d="M34 36h30M34 50h30M34 64h18"></path>
+        </symbol>
+        <symbol id="home-icon-members" viewBox="0 0 96 96">
+          <circle cx="48" cy="31" r="13"></circle>
+          <circle cx="22" cy="42" r="9"></circle>
+          <circle cx="74" cy="42" r="9"></circle>
+          <path d="M24 78c1-16 10-25 24-25s23 9 24 25M7 76c1-11 6-18 16-18M89 76c-1-11-6-18-16-18"></path>
+        </symbol>
+        <symbol id="home-icon-honors" viewBox="0 0 96 96">
+          <path d="M31 16h34v16c0 17-8 27-17 27S31 49 31 32V16Z"></path>
+          <path d="M31 23H17v8c0 12 7 19 19 19M65 23h14v8c0 12-7 19-19 19M48 59v12M32 80h32M39 71h18"></path>
+        </symbol>
+        <symbol id="home-icon-join" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="31"></circle>
+          <path d="M33 48h30M53 38l10 10-10 10"></path>
+          <path d="M48 7v10M48 79v10M7 48h10M79 48h10"></path>
+        </symbol>
+      </svg>
 
       <section class="home-updates" aria-labelledby="latest-title" data-reveal>
         <header class="home-updates__heading">

@@ -28,7 +28,6 @@ category: "技术文章"
 tags: ["待补充"]
 author: "作者昵称"
 draft: true
-sample: false
 ---
 
 在这里填写文章导语。

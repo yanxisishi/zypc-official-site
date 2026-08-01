@@ -1,467 +1,472 @@
 ---
-import PageHero from '../components/PageHero.astro';
-import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
-import SectionHeading from '../components/SectionHeading.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const practiceItems = [
+  {
+    index: '01',
+    title: '数字校园',
+    description:
+      '参与一卡通、校级核心应用等业务系统的运行管理，维护学校信息门户，并持续推进 Web 与微信小程序等应用开发。',
+    signal: 'OPERATIONS / DEVELOPMENT',
+  },
+  {
+    index: '02',
+    title: '网络安全',
+    description:
+      '以安全组为主，围绕 Web 安全、渗透测试、二进制漏洞挖掘、逆向工程、移动端安全与电子取证持续学习研究。',
+    signal: 'SECURITY / RESEARCH',
+  },
+  {
+    index: '03',
+    title: '竞赛实战',
+    description:
+      '参加各类 CTF / AWD 赛事，曾在多项全国性大型网络安全赛事中取得重要奖项，目前仍有十余名成员活跃在竞赛一线。',
+    signal: 'CTF · AWD / TEAMWORK',
+  },
+  {
+    index: '04',
+    title: '培养与分享',
+    description:
+      '建立严格的考核制度与完整的学习路线、资源，由学长学姐无偿指导，并开展对外技术培训与交流。',
+    signal: 'LEARNING / TRAINING',
+  },
+];
 ---
 
 <BaseLayout
   title="关于我们"
-  description="了解智邮普创工作室的成立背景、团队定位、培养理念与所在地。"
+  description="了解智邮普创工作室的数字校园实践、网络安全研究、工程开发与人才培养。"
+  image="/images/about/lab-awards-wall-1600.webp"
 >
-  <PageHero
-    index="02"
-    eyebrow="ABOUT ZYPC / 关于我们"
-    title="从数字校园出发，在实践中持续生长"
-    description="智邮普创工作室成立于 2013 年，是西安邮电大学信息中心学生技术团队。十余年来，我们把课堂知识带进真实项目，也把竞赛中的敏锐与严谨带回校园实践。"
-    meta="EST. 2013 · STUDENT TECHNOLOGY TEAM"
-  />
-
-  <section class="story section-pad">
-    <div class="shell story__grid">
-      <div class="story__aside">
-        <span>2013</span>
-        <p>伴随学校数据中心建设成立</p>
-      </div>
-      <div class="story__content" data-reveal>
-        <p class="story__lead">
-          一支学生团队的价值，不只在于赢得多少比赛，也在于能否把所学变成真正解决问题的能力。
-        </p>
-        <div class="story__columns">
-          <p>
-            智邮普创工作室依托学校信息中心的软硬件条件，研究前沿计算机技术，并参与数字校园相关应用的建设与运行保障。这里是课堂理论走向工程实践的连接点，也是成员建立技术责任感的第一现场。
-          </p>
-          <p>
-            随着团队发展，网络安全成为最活跃的研究方向。成员日常学习安全技术，参加 CTF、AWD 与电子数据取证等赛事，开展公开技术交流，并在严格的考核和完善的学习路线中持续成长。
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="facts">
-    <div class="shell facts__grid">
-      <div class="fact" data-reveal>
-        <span>01</span>
-        <strong>公益与免费</strong>
-        <p>不收取培训或入组费用</p>
-      </div>
-      <div class="fact" data-reveal>
-        <span>02</span>
-        <strong>面向全校</strong>
-        <p>纳新不限学院与专业</p>
-      </div>
-      <div class="fact" data-reveal>
-        <span>03</span>
-        <strong>以实践为师</strong>
-        <p>项目、竞赛与公开分享并行</p>
-      </div>
-      <div class="fact" data-reveal>
-        <span>04</span>
-        <strong>成员传承</strong>
-        <p>学长学姐无偿指导新成员</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="timeline section-pad">
+  <section class="about-page" aria-labelledby="about-title">
     <div class="shell">
-      <SectionHeading
-        eyebrow="OUR PATH / 团队轨迹"
-        title="一条不断被后来者续写的时间线"
-        description="时间节点使用已确认的团队事实，后续可在数据文件中继续补充重要事件。"
-      />
-      <div class="timeline__list">
-        <article class="timeline-item" data-reveal>
-          <time>2013</time>
-          <div>
-            <p class="timeline-item__label">FOUNDATION</p>
-            <h3>伴随学校数据中心建设成立</h3>
-            <p>从数字校园真实需求出发，形成连接教学与工程实践的学生技术平台。</p>
-          </div>
-        </article>
-        <article class="timeline-item" data-reveal>
-          <time>持续</time>
-          <div>
-            <p class="timeline-item__label">PRACTICE</p>
-            <h3>参与校园信息化建设与运行保障</h3>
-            <p>在合规和脱敏的前提下，把系统思维、工程规范与服务意识传递给每一届成员。</p>
-          </div>
-        </article>
-        <article class="timeline-item" data-reveal>
-          <time>现在</time>
-          <div>
-            <p class="timeline-item__label">SECURITY</p>
-            <h3>以网络安全竞赛与研究为当前特色</h3>
-            <p>在 Web、二进制、逆向、移动安全和取证等方向积累方法，通过竞赛检验协作与深度。</p>
-          </div>
-        </article>
-        <article class="timeline-item timeline-item--future" data-reveal>
-          <time>下一程</time>
-          <div>
-            <p class="timeline-item__label">TO BE CONTINUED</p>
-            <h3>由下一届成员继续书写</h3>
-            <p>技术会迭代，团队对真实问题、持续学习和开放传承的重视不会改变。</p>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="culture section-pad">
-    <div class="shell culture__grid">
-      <div>
-        <SectionHeading
-          eyebrow="HOW WE GROW / 如何成长"
-          title="严谨，但不冷漠；开放，也有标准"
-          description="我们相信真正有效的培养，需要清晰路线、及时反馈和愿意一起解决问题的人。"
-        />
-        <div class="culture__principles">
-          <div data-reveal>
-            <span>01</span>
-            <div><h3>先理解，再复现</h3><p>不以工具数量衡量能力，更重视原理、边界与可验证的过程。</p></div>
-          </div>
-          <div data-reveal>
-            <span>02</span>
-            <div><h3>先记录，再传承</h3><p>把踩过的坑整理成文档、模板和分享，让下一位成员站得更高。</p></div>
-          </div>
-          <div data-reveal>
-            <span>03</span>
-            <div><h3>先负责，再突破</h3><p>安全研究必须建立在合法授权和明确边界之上，技术能力始终与责任同行。</p></div>
-          </div>
+      <header class="about-intro">
+        <p class="eyebrow">ABOUT ZYPC / 关于我们</p>
+        <h1 id="about-title">关于智邮普创</h1>
+        <div class="about-intro__copy">
+          <p>
+            智邮普创工作室伴随西安邮电大学数据中心建设而成立，现为信息中心下属学生技术实验室，位于长安校区西区图书馆五楼。团队依托校内软硬件环境，研究前沿计算机技术、开发特色应用系统，推动数字校园建设。
+          </p>
+          <p>
+            作为连接课堂理论与真实工程的实战平台，团队参与一卡通、校级核心应用等业务系统的运行管理，也承担学校信息门户维护等工作，在服务校园的过程中培养工程意识与技术责任感。
+          </p>
         </div>
-      </div>
-      <div data-reveal>
-        <PhotoPlaceholder label="团队学习与分享" index="CULTURE / 02" tall />
-      </div>
+
+        <dl class="about-facts" id="location" aria-label="团队基本信息">
+          <div>
+            <dt>EST.</dt>
+            <dd>2013 成立</dd>
+          </div>
+          <div>
+            <dt>TEAM</dt>
+            <dd>信息中心学生实验室</dd>
+          </div>
+          <div>
+            <dt>LOCATION</dt>
+            <dd>西区图书馆 5F</dd>
+          </div>
+          <div>
+            <dt>OPEN</dt>
+            <dd>公益免费</dd>
+          </div>
+        </dl>
+      </header>
+
+      <figure class="about-photo">
+        <div class="about-photo__frame">
+          <img
+            src="/images/about/lab-awards-wall-960.webp"
+            srcset="/images/about/lab-awards-wall-960.webp 960w, /images/about/lab-awards-wall-1600.webp 1600w"
+            sizes="(max-width: 760px) min(calc(100vw - 2rem), 320px), 800px"
+            width="1600"
+            height="1200"
+            alt="智邮普创工作室荣誉展示区与实验室标识"
+            fetchpriority="high"
+          />
+        </div>
+        <figcaption>
+          <span>01 / SPACE</span>
+          智邮普创工作室荣誉展示区 · 长安校区西区图书馆五楼
+        </figcaption>
+      </figure>
+
+      <section class="about-practice" aria-labelledby="practice-title">
+        <div class="about-section__heading">
+          <div>
+            <p class="eyebrow">WHAT WE DO / 我们在做什么</p>
+            <h2 id="practice-title">从校园系统到安全竞赛</h2>
+          </div>
+          <p>真实业务提供问题，安全研究拓展边界，竞赛与分享检验并传递能力。</p>
+        </div>
+
+        <div class="practice-grid">
+          {
+            practiceItems.map((item) => (
+              <article class="practice-card">
+                <div class="practice-card__heading">
+                  <span>{item.index}</span>
+                  <h3>{item.title}</h3>
+                </div>
+                <p>{item.description}</p>
+                <div class="practice-card__signal">
+                  <i aria-hidden="true"></i>
+                  <span>{item.signal}</span>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+
     </div>
   </section>
 
-  <section class="location section-pad" id="location">
-    <div class="shell location__inner" data-reveal>
-      <div>
-        <p class="eyebrow">FIND US / 我们在这里</p>
-        <h2>长安校区<br />西区图书馆五楼</h2>
-      </div>
-      <div class="location__meta">
-        <span>XUPT · CHANG'AN CAMPUS</span>
-        <p>西安邮电大学信息中心学生技术团队</p>
-        <a href="/join/">查看加入方式 <span aria-hidden="true">→</span></a>
-      </div>
-      <div class="location__coordinate" aria-hidden="true">34°09′N<br />108°54′E</div>
-    </div>
-  </section>
 </BaseLayout>
 
 <style>
-  .section-pad {
-    padding: var(--space-section) 0;
+  .about-page {
+    overflow: clip;
+    padding: 7rem 0 3.25rem;
+    background:
+      radial-gradient(circle at 86% 8%, rgba(88, 175, 229, 0.12), transparent 28rem),
+      var(--paper);
   }
 
-  .story {
-    background: var(--surface);
-  }
-
-  .story__grid {
-    display: grid;
-    grid-template-columns: 0.55fr 2fr;
-    gap: clamp(3rem, 9vw, 9rem);
-  }
-
-  .story__aside span {
-    color: var(--blue-700);
-    font-family: var(--font-mono);
-    font-size: clamp(2.2rem, 4vw, 4rem);
-    font-weight: 650;
-    letter-spacing: -0.08em;
-  }
-
-  .story__aside p {
-    max-width: 10rem;
-    margin-top: 0.6rem;
-    color: var(--muted);
-    font-size: var(--text-small);
-  }
-
-  .story__lead {
-    max-width: 54rem;
-    color: var(--ink);
-    font-size: var(--text-feature);
-    font-weight: 580;
+  .about-intro h1 {
+    margin-top: 1rem;
+    font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+    font-weight: 660;
     letter-spacing: var(--tracking-heading);
-    line-height: 1.48;
+    line-height: 1.2;
   }
 
-  .story__columns {
+  .about-intro__copy {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-top: 3.5rem;
-    color: var(--muted);
-    line-height: 1.9;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    margin-top: 1.5rem;
+    color: var(--ink-soft);
+    font-size: clamp(1rem, 1.25vw, 1.0625rem);
+    line-height: 1.82;
   }
 
-  .facts {
-    padding: 1rem 0;
-    background: var(--surface);
+  .about-intro__copy p + p {
+    padding-left: clamp(1.5rem, 4vw, 3.5rem);
+    border-left: 1px solid var(--line-strong);
   }
 
-  .facts__grid {
+  .about-facts {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 1.5rem;
+    scroll-margin-top: 6.5rem;
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
   }
 
-  .fact {
-    min-height: 9.5rem;
-    padding: 1.5rem;
+  .about-facts > div {
+    display: flex;
+    min-height: 3.8rem;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.75rem 1.25rem;
     border-right: 1px solid var(--line);
   }
 
-  .fact:last-child {
+  .about-facts > div:last-child {
     border-right: 0;
   }
 
-  .fact span {
+  .about-facts dt {
     color: var(--orange);
     font-family: var(--font-mono);
     font-size: var(--text-meta);
+    font-weight: 700;
+    letter-spacing: 0.08em;
   }
 
-  .fact strong {
-    display: block;
-    margin-top: 1.7rem;
-    font-size: 1.2rem;
+  .about-facts dd {
+    color: var(--ink);
+    font-size: var(--text-small);
+    font-weight: 650;
   }
 
-  .fact p {
-    margin-top: 0.4rem;
+  .about-photo {
+    max-width: 50rem;
+    margin: 2.25rem auto 0;
+  }
+
+  .about-photo__frame {
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--paper-deep);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .about-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 48%;
+  }
+
+  .about-photo figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0.25rem 0;
     color: var(--muted);
-    font-size: 0.82rem;
+    font-size: 0.8125rem;
   }
 
-  .timeline {
-    background: var(--paper);
-  }
-
-  .timeline__list {
-    position: relative;
-    margin-top: 3rem;
-    border-top: 1px solid var(--line-strong);
-  }
-
-  .timeline-item {
-    display: grid;
-    grid-template-columns: 0.65fr 2fr;
-    gap: 3rem;
-    padding: 2rem 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .timeline-item time {
+  .about-photo figcaption span {
     color: var(--blue-700);
     font-family: var(--font-mono);
-    font-size: clamp(1.1rem, 2vw, 1.5rem);
-    font-weight: 640;
+    font-weight: 700;
+    letter-spacing: 0.1em;
   }
 
-  .timeline-item__label {
-    color: var(--orange);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-    letter-spacing: 0.11em;
+  .about-practice {
+    margin-top: 3.25rem;
   }
 
-  .timeline-item h3 {
-    margin-top: 0.5rem;
-    font-size: clamp(1.1rem, 2vw, 1.5rem);
-    font-weight: 640;
-    letter-spacing: -0.018em;
-  }
-
-  .timeline-item div > p:last-child {
-    max-width: 46rem;
-    margin-top: 0.7rem;
-    color: var(--muted);
-    line-height: 1.8;
-  }
-
-  .timeline-item--future {
-    color: var(--on-deep);
-    margin-top: 1rem;
-    padding-inline: 2rem;
-    border: 0;
-    border-radius: var(--radius-lg);
-    background: var(--deep);
-  }
-
-  .timeline-item--future time {
-    color: var(--blue-300);
-  }
-
-  .timeline-item--future div > p:last-child {
-    color: var(--on-deep-muted);
-  }
-
-  .culture {
-    background: var(--surface);
-  }
-
-  .culture__grid {
+  .about-section__heading {
     display: grid;
-    grid-template-columns: 1fr 0.9fr;
-    align-items: center;
-    gap: clamp(3rem, 8vw, 7rem);
+    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 0.8fr);
+    align-items: end;
+    gap: 2rem;
   }
 
-  .culture__principles {
-    margin-top: 3rem;
-    border-top: 1px solid var(--line);
+  .about-section__heading h2 {
+    margin-top: 0.8rem;
+    font-size: clamp(1.75rem, 2.5vw, 2.25rem);
+    font-weight: 660;
+    letter-spacing: var(--tracking-heading);
+    line-height: 1.2;
   }
 
-  .culture__principles > div {
-    display: grid;
-    grid-template-columns: 2.3rem 1fr;
-    gap: 1rem;
-    padding: 1.4rem 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .culture__principles span {
-    color: var(--orange);
-    font-family: var(--font-mono);
-    font-size: var(--text-meta);
-  }
-
-  .culture__principles h3 {
-    font-size: 1.1rem;
-  }
-
-  .culture__principles p {
-    margin-top: 0.4rem;
+  .about-section__heading > p {
+    max-width: 28rem;
+    justify-self: end;
     color: var(--muted);
+    font-size: var(--text-small);
     line-height: 1.75;
   }
 
-  .location {
-    overflow: hidden;
-    background: var(--blue-100);
-  }
-
-  .location__inner {
-    position: relative;
+  .practice-grid {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    align-items: end;
-    gap: 3rem;
+    grid-template-columns: repeat(2, 1fr);
+    margin-top: 1.75rem;
+    border-top: 1px solid var(--line-strong);
   }
 
-  .location h2 {
-    margin-top: 1.2rem;
-    color: var(--ink);
-    font-size: var(--text-section);
-    font-weight: 650;
-    letter-spacing: var(--tracking-heading);
-    line-height: 1.16;
+  .practice-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.4rem clamp(1.25rem, 2.5vw, 2rem);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line-strong);
   }
 
-  .location__meta {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    gap: 0.8rem;
-    padding: 1.5rem;
-    border-left: 2px solid var(--orange);
+  .practice-card:nth-child(odd) {
+    padding-left: 0;
   }
 
-  .location__meta span {
+  .practice-card:nth-child(even) {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .practice-card__heading {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .practice-card__heading span {
+    color: var(--orange);
+    font-family: var(--font-mono);
+    font-size: var(--text-meta);
+    font-weight: 700;
+  }
+
+  .practice-card h3 {
+    font-size: 1.125rem;
+    font-weight: 670;
+  }
+
+  .practice-card > p {
+    margin-top: 0.8rem;
+    color: var(--muted);
+    font-size: var(--text-small);
+    line-height: 1.75;
+  }
+
+  .practice-card__signal {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: auto;
+    padding-top: 1.35rem;
     color: var(--blue-700);
     font-family: var(--font-mono);
     font-size: var(--text-meta);
-    letter-spacing: 0.12em;
+    font-weight: 700;
+    letter-spacing: 0.05em;
   }
 
-  .location__meta p {
-    color: var(--muted);
+  .practice-card__signal i {
+    width: 1.25rem;
+    height: 2px;
+    background: var(--orange);
   }
 
-  .location__meta a {
-    width: fit-content;
-    margin-top: 0.6rem;
-    font-weight: 650;
-    text-decoration: none;
-  }
-
-  .location__coordinate {
-    position: absolute;
-    right: -2rem;
-    bottom: -3rem;
-    color: rgba(38, 123, 181, 0.08);
-    font-family: var(--font-mono);
-    font-size: clamp(4rem, 8vw, 6rem);
-    font-weight: 800;
-    line-height: 0.8;
-    text-align: right;
-  }
-
-  @media (max-width: 850px) {
-    .story__grid,
-    .culture__grid,
-    .location__inner {
+  @media (max-width: 900px) {
+    .about-intro__copy,
+    .about-section__heading {
       grid-template-columns: 1fr;
     }
 
-    .story__columns {
-      grid-template-columns: 1fr;
+    .about-intro__copy {
+      gap: 0.9rem;
     }
 
-    .facts__grid {
-      grid-template-columns: 1fr 1fr;
+    .about-intro__copy p + p {
+      padding-top: 0.9rem;
+      padding-left: 0;
+      border-top: 1px solid var(--line);
+      border-left: 0;
     }
 
-    .fact:nth-child(2) {
-      border-right: 0;
+    .about-facts {
+      grid-template-columns: repeat(2, 1fr);
     }
 
-    .fact:nth-child(-n + 2) {
-      border-bottom: 1px solid var(--line);
-    }
-  }
-
-  @media (max-width: 560px) {
-    .story__aside {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .facts__grid {
-      grid-template-columns: 1fr;
-    }
-
-    .fact,
-    .fact:nth-child(2) {
-      min-height: auto;
-      border-right: 0;
+    .about-facts > div {
       border-bottom: 1px solid var(--line);
     }
 
-    .fact:last-child {
+    .about-facts > div:nth-child(even) {
+      border-right: 0;
+    }
+
+    .about-facts > div:nth-child(n + 3) {
       border-bottom: 0;
     }
 
-    .fact strong {
+    .about-section__heading > p {
+      justify-self: start;
+    }
+
+  }
+
+  @media (max-width: 760px) {
+    .about-page {
+      padding: 6.5rem 0 2.75rem;
+    }
+
+    .about-intro h1 {
+      margin-top: 0.75rem;
+      font-size: 1.65rem;
+    }
+
+    .about-intro__copy {
+      margin-top: 1.25rem;
+      font-size: 0.9375rem;
+      line-height: 1.75;
+    }
+
+    .about-facts {
       margin-top: 1.5rem;
     }
 
-    .timeline-item {
-      grid-template-columns: 1fr;
+    .about-facts > div {
+      min-height: 3.4rem;
+      padding: 0.65rem 0.8rem;
+    }
+
+    .about-facts dt {
+      font-size: 0.8125rem;
+    }
+
+    .about-facts dd {
+      font-size: 0.8125rem;
+    }
+
+    .about-photo {
+      width: min(100%, 20rem);
+      margin-top: 2rem;
+    }
+
+    .about-photo__frame {
+      aspect-ratio: 4 / 3;
+      border-radius: var(--radius-md);
+    }
+
+    .about-photo img {
+      object-position: center;
+    }
+
+    .about-photo figcaption {
+      display: grid;
+      justify-content: start;
+      gap: 0.25rem;
+      padding-top: 0.65rem;
+      line-height: 1.5;
+    }
+
+    .about-practice {
+      margin-top: 2.75rem;
+    }
+
+    .about-section__heading {
       gap: 0.8rem;
     }
 
-    .timeline-item--future {
-      padding: 1.4rem;
+    .about-section__heading h2 {
+      margin-top: 0.65rem;
+      font-size: 1.65rem;
+    }
+
+    .practice-grid {
+      grid-template-columns: 1fr;
+      margin-top: 1.5rem;
+    }
+
+    .practice-card,
+    .practice-card:nth-child(odd),
+    .practice-card:nth-child(even) {
+      padding: 1.15rem 0.25rem;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .practice-card:last-child {
+      border-bottom: 0;
+    }
+
+    .practice-card__signal {
+      padding-top: 0.9rem;
+    }
+
+  }
+
+  @media (max-width: 420px) {
+    .about-facts {
+      grid-template-columns: 1fr;
+    }
+
+    .about-facts > div,
+    .about-facts > div:nth-child(n + 3) {
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .about-facts > div:last-child {
+      border-bottom: 0;
     }
   }
 </style>

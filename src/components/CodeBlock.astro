@@ -1,0 +1,53 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  code: string;
+  language: 'bash' | 'json' | 'ts' | 'yaml';
+}
+
+const { code, language } = Astro.props;
+const codeLineNumbers = {
+  line(node: { properties: Record<string, unknown> }, line: number) {
+    node.properties['data-line'] = line;
+  },
+};
+---
+
+<div class="maintenance-code prose" data-maintenance-code>
+  <div class="code-block-shell">
+    <Code
+      code={code.trim()}
+      lang={language}
+      themes={{
+        light: 'one-light',
+        dark: 'github-dark-high-contrast',
+      }}
+      defaultColor={false}
+      transformers={[codeLineNumbers]}
+    />
+    <button
+      class="code-copy-button"
+      type="button"
+      title={`复制 ${language} 代码`}
+      aria-label={`复制 ${language} 代码`}
+    >
+      <span class="code-copy-button__language" aria-hidden="true">{language}</span>
+      <span class="code-copy-button__action" aria-hidden="true">复制</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .maintenance-code {
+    width: 100%;
+    max-width: none;
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  .maintenance-code .code-block-shell {
+    margin: 1rem 0 0;
+  }
+</style>

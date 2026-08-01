@@ -32,7 +32,8 @@ const navItems = [
   { href: '/members/', label: '成员' },
   { href: '/honors/', label: '荣誉' },
   { href: '/articles/', label: '文章' },
-  { href: '/join/', label: '加入我们' },
+  { href: '/join/', label: '加入' },
+  { href: '/maintenance/', label: '维护' },
 ];
 
 const isActive = (href: string) =>
@@ -130,13 +131,14 @@ const isActive = (href: string) =>
         </div>
         <div class="site-footer__column site-footer__column--links">
           <p class="site-footer__title">LINKS</p>
-          <a href={settings.github} target="_blank" rel="noreferrer">GitHub Organization ↗</a>
-          <a href="/rss.xml">RSS Feed →</a>
-          <a href="/join/">加入我们 →</a>
+          <a href={settings.github} target="_blank" rel="noreferrer">GitHub Organization</a>
+          <a href="/rss.xml">RSS Feed</a>
+          <a href="/join/">加入我们</a>
+          <a href="/maintenance/">维护文档</a>
         </div>
       </div>
       <div class="shell site-footer__bottom">
-        <span>© {new Date().getFullYear()} ZYPC</span>
+        <span>© ZYPC</span>
         <span>EST. 2013 · XUPT × ZYPC</span>
         <span>服务数字校园，探索安全边界</span>
       </div>

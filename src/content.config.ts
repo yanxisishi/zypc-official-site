@@ -13,39 +13,7 @@ const articles = defineCollection({
     tags: z.array(z.string()).default([]),
     author: z.string().min(1),
     draft: z.boolean().default(false),
-    sample: z.boolean().default(false),
     cover: z.string().optional(),
-  }),
-});
-
-const members = defineCollection({
-  loader: file('./src/data/members.json'),
-  schema: z.object({
-    id: z.string(),
-    nickname: z.string().min(1),
-    cohort: z.string(),
-    status: z.enum(['mentor', 'current', 'alumni']),
-    directions: z.array(z.string()).min(1),
-    avatar: z.string().optional(),
-    github: z.url().optional(),
-    blog: z.url().optional(),
-    placeholder: z.boolean().default(false),
-    order: z.number().int().default(100),
-  }),
-});
-
-const honors = defineCollection({
-  loader: file('./src/data/honors.json'),
-  schema: z.object({
-    id: z.string(),
-    year: z.number().int().min(2013),
-    month: z.number().int().min(1).max(12),
-    competition: z.string().min(2),
-    award: z.string().min(1),
-    rank: z.string().optional(),
-    members: z.array(z.string()),
-    track: z.string(),
-    writeupUrl: z.url().optional(),
   }),
 });
 
@@ -68,21 +36,13 @@ const recruitment = defineCollection({
   loader: file('./src/data/recruitment.json'),
   schema: z.object({
     id: z.string(),
-    status: z.enum(['closed', 'preparing', 'open', 'ended']),
-    cohort: z.string(),
-    summary: z.string(),
     qqGroup: z.string().min(5),
-    qrCode: z.string().startsWith('/'),
-    applyUrl: z.url().optional(),
-    deadline: z.coerce.date().optional(),
-    updatedAt: z.coerce.date(),
+    wechatAccount: z.string().min(2),
   }),
 });
 
 export const collections = {
   articles,
-  members,
-  honors,
   siteSettings,
   recruitment,
 };
