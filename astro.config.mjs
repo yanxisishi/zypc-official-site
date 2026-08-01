@@ -12,7 +12,7 @@ const codeLineNumbers = {
 
 export default defineConfig({
   output: 'static',
-  site: 'https://zypc.example.com',
+  site: 'https://zypc.xupt.edu.cn',
   trailingSlash: 'always',
   build: {
     format: 'directory',
