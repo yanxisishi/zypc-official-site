@@ -8,12 +8,16 @@
 
 ## 环境与本地运行
 
-建议使用 Node.js 22 LTS 和随 Node.js 安装的 npm。
+项目要求 Node.js 22.12.0 或更高版本，推荐使用 Node.js 24 LTS 和随 Node.js 安装的 npm。
 
 ```bash
-npm install
+npm ci --no-audit --no-fund
 npm run dev
 ```
+
+从仓库首次安装或恢复锁定依赖时统一使用 `npm ci`。只有在主动添加、删除或升级依赖时才使用 `npm install`，并在提交前检查 `package-lock.json` 的变化。
+
+`@emnapi/core` 和 `@emnapi/runtime` 是用于规避 npm 跨平台锁文件可选依赖缺失问题的兼容项。即使源码没有直接导入，也不要随意删除。
 
 浏览器打开 `http://localhost:4321/`。常用命令如下：
 
@@ -176,15 +180,26 @@ git push
 
 ## 部署说明
 
-网站采用纯静态构建。部署平台应安装锁定依赖、完成检查与构建，然后发布 `dist/`：
+当前正式环境配置如下：
+
+| 项目 | 配置 |
+| --- | --- |
+| GitHub 仓库 | `https://github.com/yanxisishi/zypc-official-site` |
+| 部署分支 | `main` |
+| 服务器项目目录 | `/www/wwwroot/zypc` |
+| 宝塔网站运行目录 | `/dist`（对应 `/www/wwwroot/zypc/dist`） |
+| 正式域名 | `https://zypc.xupt.edu.cn` |
+
+网站采用纯静态构建。服务器拉取 `main` 后，在项目目录中安装锁定依赖、完成检查与构建：
 
 ```bash
+cd /www/wwwroot/zypc
 npm ci --no-audit --no-fund
 npm run check
 npm run build
 ```
 
-Nginx 或静态托管平台只需要提供 `dist/`，不要把仓库根目录、`.git`、源码或环境文件暴露为网站目录。正式部署前应把 `astro.config.mjs` 中的 `site` 改为实际域名，以保证 RSS 和 Sitemap 使用正确地址。
+Nginx 只需要提供 `/www/wwwroot/zypc/dist`，不要把仓库根目录、`.git`、源码或环境文件暴露为网站目录。`astro.config.mjs` 已配置正式域名 `https://zypc.xupt.edu.cn`；只有网站迁移到其他域名时才需要修改 `site`，以保证 RSS 和 Sitemap 使用正确地址。
 
 构建失败时不要继续替换线上文件。先查看完整日志，并依次检查 Node.js/npm 版本、依赖安装、内容字段、静态资源路径和服务器网络。
 

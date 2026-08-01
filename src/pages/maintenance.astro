@@ -46,9 +46,19 @@ const articleFields = [
   ['cover', '可选；public 目录下资源对应的站内路径'],
 ];
 
-const installCode = `npm install
+const installCode = `npm ci --no-audit --no-fund
 npm run dev`;
 const newArticleCode = `npm run new:article -- article-slug "文章标题"`;
+const articleFrontmatterCode = `---
+title: "文章标题"
+description: "用于文章列表和搜索结果的一到两句话摘要。"
+publishedAt: 2026-08-01
+category: "技术文章"
+tags: ["Web", "复盘"]
+author: "作者昵称"
+draft: true
+cover: "/images/articles/example/cover.webp"
+---`;
 const memberCode = `{
   nickname: '昵称',
   sitenick: 'web',
@@ -82,7 +92,8 @@ git diff
 git add <本次修改的文件>
 git commit -m "说明本次修改"
 git push`;
-const deployCode = `npm ci --no-audit --no-fund
+const deployCode = `cd /www/wwwroot/zypc
+npm ci --no-audit --no-fund
 npm run check
 npm run build`;
 ---
@@ -107,8 +118,14 @@ npm run build`;
 
       <section id="start" aria-labelledby="start-title">
         <h2 id="start-title">环境与本地运行</h2>
-        <p>建议使用 Node.js 22 LTS 和随 Node.js 安装的 npm。首次运行先安装依赖：</p>
+        <p>项目要求 Node.js 22.12.0 或更高版本，推荐使用 Node.js 24 LTS 和随 Node.js 安装的 npm。首次运行先安装锁定依赖：</p>
         <CodeBlock code={installCode} language="bash" />
+        <p>
+          从仓库首次安装或恢复锁定依赖时统一使用 <code>npm ci</code>。只有在主动添加、删除或升级依赖时才使用 <code>npm install</code>，并检查 <code>package-lock.json</code> 的变化。
+        </p>
+        <p>
+          <code>@emnapi/core</code> 和 <code>@emnapi/runtime</code> 是用于规避 npm 跨平台锁文件可选依赖缺失问题的兼容项。即使源码没有直接导入，也不要随意删除。
+        </p>
         <p>浏览器打开 <code>http://localhost:4321/</code>。开始修改前先执行 <code>git status</code>，避免覆盖其他维护者尚未提交的内容。</p>
         <dl class="document-list">
           {commands.map(([command, use]) => (
@@ -135,6 +152,8 @@ npm run build`;
         <p>
           <code>article-slug</code> 只能包含小写字母、数字和连字符，并会成为文章 URL 的一部分。已有文章不要随意改名，否则原链接会失效。
         </p>
+        <p>文章的 Frontmatter 示例：</p>
+        <CodeBlock code={articleFrontmatterCode} language="yaml" />
         <p>Frontmatter 的常用字段如下：</p>
         <dl class="document-list document-list--fields">
           {articleFields.map(([name, use]) => (
@@ -193,10 +212,12 @@ npm run build`;
         <CodeBlock code={gitCode} language="bash" />
 
         <h3>部署</h3>
-        <p>部署平台安装锁定依赖、完成检查与构建，然后只发布 <code>dist/</code>：</p>
+        <p>
+          当前正式域名为 <code>https://zypc.xupt.edu.cn</code>，服务器项目目录为 <code>/www/wwwroot/zypc</code>，宝塔网站运行目录为 <code>/dist</code>。服务器拉取 <code>main</code> 后执行：
+        </p>
         <CodeBlock code={deployCode} language="bash" />
         <p>
-          Nginx 或静态托管平台不要暴露仓库根目录、<code>.git</code> 或源码。正式部署前应把 <code>astro.config.mjs</code> 中的 <code>site</code> 改为实际域名，确保 RSS 和 Sitemap 地址正确。
+          Nginx 只提供 <code>/www/wwwroot/zypc/dist</code>，不要暴露仓库根目录、<code>.git</code> 或源码。<code>astro.config.mjs</code> 已配置正式域名；只有网站迁移到其他域名时才需要修改 <code>site</code>。
         </p>
       </section>
 
