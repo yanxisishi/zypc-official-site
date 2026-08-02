@@ -245,7 +245,15 @@ const memberGroups: MemberGroup[] = [
         github: 'pank1ng',
         blog: 'https://blog.jiangyou.dpdns.org',
       },
-
+      {
+        nickname: 'yugjhfgtf',
+        sitenick: 'Crypto',
+        title: 'yugjhfgtf',
+        directions: ['Crypto 安全'],
+        qq: '',
+        github: 'yugjhfgtf',
+        blog: '',
+      },
     ],
   },
   // #endregion
