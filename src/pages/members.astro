@@ -229,55 +229,174 @@ const getGithubUrl = (github?: string) => {
       ...document.querySelectorAll<HTMLButtonElement>('[data-copy-contact]'),
     ];
     const mobileMembersQuery = window.matchMedia('(max-width: 680px)');
+    const supportsPopover = 'showPopover' in HTMLElement.prototype;
+    const placementPreference = ['bottom', 'top', 'right', 'left'] as const;
+    type TooltipPlacement = (typeof placementPreference)[number];
     let placementFrame = 0;
+    let openEntry: HTMLElement | null = null;
 
-    const positionEntryTooltip = (entry: HTMLElement) => {
-      entry.classList.remove('is-tooltip-above');
-      if (!entry.classList.contains('is-open') || !mobileMembersQuery.matches) return;
+    const getEntryTrigger = (entry: HTMLElement) =>
+      entry.querySelector<HTMLButtonElement>('[data-member-trigger]');
 
-      const trigger = entry.querySelector<HTMLElement>('[data-member-trigger]');
-      const detail = entry.querySelector<HTMLElement>('.member-tooltip');
-      if (!trigger || !detail) return;
-
-      const visualViewport = window.visualViewport;
-      const viewportTop = visualViewport?.offsetTop ?? 0;
-      const viewportBottom = viewportTop + (visualViewport?.height ?? window.innerHeight);
-      const headerBottom =
-        document.querySelector<HTMLElement>('.site-header')?.getBoundingClientRect().bottom ?? 0;
-      const triggerRect = trigger.getBoundingClientRect();
-      const detailHeight = detail.getBoundingClientRect().height;
-      const safeTop = Math.max(viewportTop + 12, headerBottom + 8);
-      const safeBottom = viewportBottom - 12;
-      const gap = 6;
-      const spaceAbove = triggerRect.top - safeTop - gap;
-      const spaceBelow = safeBottom - triggerRect.bottom - gap;
-
-      entry.classList.toggle(
-        'is-tooltip-above',
-        detailHeight > spaceBelow && spaceAbove > spaceBelow,
-      );
+    const getEntryDetail = (entry: HTMLElement) => {
+      const detailId = getEntryTrigger(entry)?.getAttribute('aria-controls');
+      return detailId ? document.getElementById(detailId) : null;
     };
 
-    const requestOpenEntryPlacement = () => {
-      window.cancelAnimationFrame(placementFrame);
-      placementFrame = window.requestAnimationFrame(() => {
-        placementFrame = 0;
-        const openEntry = entries.find((entry) => entry.classList.contains('is-open'));
-        if (openEntry) positionEntryTooltip(openEntry);
-      });
+    const resetDetailPlacement = (detail: HTMLElement) => {
+      detail.style.removeProperty('--member-popover-left');
+      detail.style.removeProperty('--member-popover-top');
+      delete detail.dataset.placement;
+    };
+
+    const deactivateMobileDetail = (entry: HTMLElement) => {
+      const detail = getEntryDetail(entry);
+      if (!detail) return;
+
+      if (supportsPopover && detail.matches(':popover-open')) {
+        detail.hidePopover();
+      }
+      detail.removeAttribute('popover');
+      detail.classList.remove('is-mobile-popover-open');
+      resetDetailPlacement(detail);
+
+      if (detail.dataset.portalFallback === 'true') {
+        entry.append(detail);
+        delete detail.dataset.portalFallback;
+      }
+    };
+
+    const activateMobileDetail = (entry: HTMLElement) => {
+      const detail = getEntryDetail(entry);
+      if (!detail || !mobileMembersQuery.matches) return;
+
+      resetDetailPlacement(detail);
+      let shownInTopLayer = false;
+
+      if (supportsPopover) {
+        try {
+          detail.setAttribute('popover', 'manual');
+          detail.showPopover();
+          shownInTopLayer = true;
+        } catch {
+          detail.removeAttribute('popover');
+        }
+      }
+
+      if (!shownInTopLayer) {
+        document.body.append(detail);
+        detail.dataset.portalFallback = 'true';
+        detail.classList.add('is-mobile-popover-open');
+      }
     };
 
     const setEntryOpen = (entry: HTMLElement, open: boolean) => {
       entry.classList.toggle('is-open', open);
-      entry.querySelector<HTMLButtonElement>('[data-member-trigger]')
-        ?.setAttribute('aria-expanded', String(open));
+      getEntryTrigger(entry)?.setAttribute('aria-expanded', String(open));
 
       if (!open) {
-        entry.classList.remove('is-tooltip-above');
+        deactivateMobileDetail(entry);
+        if (openEntry === entry) openEntry = null;
         return;
       }
 
+      openEntry = entry;
+      if (mobileMembersQuery.matches) activateMobileDetail(entry);
       requestOpenEntryPlacement();
+    };
+
+    const positionEntryTooltip = (entry: HTMLElement) => {
+      if (!entry.classList.contains('is-open') || !mobileMembersQuery.matches) return;
+
+      const trigger = getEntryTrigger(entry);
+      const detail = getEntryDetail(entry);
+      if (!trigger || !detail) return;
+
+      const visualViewport = window.visualViewport;
+      const viewportLeft = visualViewport?.offsetLeft ?? 0;
+      const viewportTop = visualViewport?.offsetTop ?? 0;
+      const viewportRight = viewportLeft + (visualViewport?.width ?? window.innerWidth);
+      const viewportBottom = viewportTop + (visualViewport?.height ?? window.innerHeight);
+      const headerBottom =
+        document.querySelector<HTMLElement>('.site-header')?.getBoundingClientRect().bottom ?? 0;
+      const safeLeft = viewportLeft + 12;
+      const safeTop = Math.max(viewportTop + 12, headerBottom + 8);
+      const safeRight = viewportRight - 12;
+      const safeBottom = viewportBottom - 12;
+      const gap = 8;
+      const triggerRect = trigger.getBoundingClientRect();
+
+      const triggerOutsideViewport =
+        triggerRect.bottom <= safeTop ||
+        triggerRect.top >= safeBottom ||
+        triggerRect.right <= safeLeft ||
+        triggerRect.left >= safeRight;
+      if (triggerOutsideViewport) {
+        setEntryOpen(entry, false);
+        return;
+      }
+
+      const detailRect = detail.getBoundingClientRect();
+      const spaces: Record<TooltipPlacement, number> = {
+        bottom: safeBottom - triggerRect.bottom - gap,
+        top: triggerRect.top - safeTop - gap,
+        right: safeRight - triggerRect.right - gap,
+        left: triggerRect.left - safeLeft - gap,
+      };
+      const requiredSpace: Record<TooltipPlacement, number> = {
+        bottom: detailRect.height,
+        top: detailRect.height,
+        right: detailRect.width,
+        left: detailRect.width,
+      };
+      const placement = [...placementPreference].sort((first, second) => {
+        const firstFits = spaces[first] >= requiredSpace[first];
+        const secondFits = spaces[second] >= requiredSpace[second];
+        if (firstFits !== secondFits) return firstFits ? -1 : 1;
+
+        const firstScore = spaces[first] / Math.max(requiredSpace[first], 1);
+        const secondScore = spaces[second] / Math.max(requiredSpace[second], 1);
+        return secondScore - firstScore;
+      })[0];
+
+      let rawLeft = triggerRect.left + (triggerRect.width - detailRect.width) / 2;
+      let rawTop = triggerRect.bottom + gap;
+      if (placement === 'top') rawTop = triggerRect.top - detailRect.height - gap;
+      if (placement === 'right') {
+        rawLeft = triggerRect.right + gap;
+        rawTop = triggerRect.top + (triggerRect.height - detailRect.height) / 2;
+      }
+      if (placement === 'left') {
+        rawLeft = triggerRect.left - detailRect.width - gap;
+        rawTop = triggerRect.top + (triggerRect.height - detailRect.height) / 2;
+      }
+
+      const maxLeft = Math.max(safeLeft, safeRight - detailRect.width);
+      const maxTop = Math.max(safeTop, safeBottom - detailRect.height);
+      const left = Math.min(maxLeft, Math.max(safeLeft, rawLeft));
+      const top = Math.min(maxTop, Math.max(safeTop, rawTop));
+
+      detail.dataset.placement = placement;
+      detail.style.setProperty('--member-popover-left', `${left}px`);
+      detail.style.setProperty('--member-popover-top', `${top}px`);
+    };
+
+    function requestOpenEntryPlacement() {
+      window.cancelAnimationFrame(placementFrame);
+      placementFrame = window.requestAnimationFrame(() => {
+        placementFrame = 0;
+        if (openEntry) positionEntryTooltip(openEntry);
+      });
+    }
+
+    const syncOpenEntryPresentation = () => {
+      if (!openEntry) return;
+      if (mobileMembersQuery.matches) {
+        activateMobileDetail(openEntry);
+        requestOpenEntryPlacement();
+      } else {
+        deactivateMobileDetail(openEntry);
+      }
     };
 
     const closeEntries = (except?: HTMLElement) => {
@@ -316,20 +435,24 @@ const getGithubUrl = (github?: string) => {
     });
 
     document.addEventListener('click', (event) => {
-      if (!(event.target as Element).closest('[data-member-entry]')) closeEntries();
+      const target = event.target as Element;
+      const openDetail = openEntry ? getEntryDetail(openEntry) : null;
+      if (!target.closest('[data-member-entry]') && !openDetail?.contains(target)) closeEntries();
     });
 
     document.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape') return;
-      const openEntry = entries.find((entry) => entry.classList.contains('is-open'));
       if (!openEntry) return;
-      setEntryOpen(openEntry, false);
-      openEntry.querySelector<HTMLButtonElement>('[data-member-trigger]')?.focus();
+      const entryToClose = openEntry;
+      setEntryOpen(entryToClose, false);
+      getEntryTrigger(entryToClose)?.focus();
     });
 
+    window.addEventListener('scroll', requestOpenEntryPlacement, { passive: true });
     window.addEventListener('resize', requestOpenEntryPlacement);
+    window.visualViewport?.addEventListener('scroll', requestOpenEntryPlacement);
     window.visualViewport?.addEventListener('resize', requestOpenEntryPlacement);
-    mobileMembersQuery.addEventListener('change', requestOpenEntryPlacement);
+    mobileMembersQuery.addEventListener('change', syncOpenEntryPresentation);
   </script>
 </BaseLayout>
 
@@ -905,34 +1028,20 @@ const getGithubUrl = (github?: string) => {
     }
 
     .member-tooltip {
-      top: calc(100% + 0.35rem);
+      position: fixed;
+      inset: auto;
+      top: var(--member-popover-top, -9999px);
       right: auto;
       bottom: auto;
-      left: 0;
-      width: calc(200% + 0.4rem);
-      max-width: calc(100vw - 2rem);
-      transform: translateY(0.35rem);
+      left: var(--member-popover-left, -9999px);
+      width: min(15rem, calc(100vw - 1.5rem));
+      max-width: none;
+      margin: 0;
+      transform: none;
     }
 
-    .member-entry:nth-child(even) .member-tooltip {
-      right: 0;
-      left: auto;
-    }
-
-    .member-list > .member-entry:last-child:nth-child(odd) .member-tooltip {
-      right: auto;
-      left: 50%;
-      transform: translate(-50%, 0.35rem);
-    }
-
-    .member-entry.is-tooltip-above .member-tooltip {
-      top: auto;
-      bottom: calc(100% + 0.35rem);
-      transform: translateY(-0.35rem);
-    }
-
-    .member-list > .member-entry.is-tooltip-above:last-child:nth-child(odd) .member-tooltip {
-      transform: translate(-50%, -0.35rem);
+    .member-tooltip::backdrop {
+      background: transparent;
     }
 
     .member-entry:hover .member-tooltip,
@@ -943,31 +1052,66 @@ const getGithubUrl = (github?: string) => {
     }
 
     .member-entry.is-open .member-tooltip {
-      position: absolute;
-      z-index: 50;
+      z-index: 200;
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+      transform: none;
+    }
+
+    .member-tooltip.is-mobile-popover-open {
+      z-index: 200;
       display: block;
       visibility: visible;
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0);
+      transform: none;
     }
 
-    .member-list > .member-entry.is-open:last-child:nth-child(odd) .member-tooltip {
-      transform: translate(-50%, 0);
+    .member-tooltip__avatar,
+    .member-tooltip__year {
+      display: none;
     }
 
-    .member-entry.is-open.is-tooltip-above .member-tooltip {
-      transform: translateY(0);
+    .member-tooltip__site {
+      gap: 0;
+      padding: 0.45rem 0.6rem;
     }
 
-    .member-list
-      > .member-entry.is-open.is-tooltip-above:last-child:nth-child(odd)
-      .member-tooltip {
-      transform: translate(-50%, 0);
+    .member-tooltip__identity {
+      width: 100%;
     }
 
-    .member-entry.is-open .member-tooltip::before,
-    .member-entry.is-open .member-tooltip::after {
+    .member-tooltip__identity strong {
+      font-size: 0.875rem;
+    }
+
+    .member-tooltip__desc {
+      padding: 0.3rem 0.6rem 0.4rem;
+    }
+
+    .member-tooltip__contacts {
+      min-height: 0;
+      gap: 0.1rem;
+    }
+
+    .member-tooltip__contact {
+      min-height: 1.65rem;
+      gap: 0.35rem;
+    }
+
+    .member-tooltip__value {
+      font-size: 0.75rem;
+    }
+
+    .member-tooltip__copy {
+      width: 1.5rem;
+      height: 1.5rem;
+      flex-basis: 1.5rem;
+    }
+
+    .member-tooltip::before,
+    .member-tooltip::after {
       display: none;
     }
   }
