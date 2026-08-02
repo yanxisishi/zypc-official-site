@@ -1137,8 +1137,8 @@ const getGithubUrl = (github?: string) => {
       right: auto;
       bottom: auto;
       left: var(--member-popover-left, -9999px);
-      width: min(15rem, calc(100vw - 1.5rem));
-      max-width: none;
+      width: max-content;
+      max-width: min(15rem, calc(100vw - 1.5rem));
       margin: 0;
       transform: none;
     }
