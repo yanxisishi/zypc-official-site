@@ -228,32 +228,56 @@ const getGithubUrl = (github?: string) => {
     const contactCopyButtons = [
       ...document.querySelectorAll<HTMLButtonElement>('[data-copy-contact]'),
     ];
+    const mobileMembersQuery = window.matchMedia('(max-width: 680px)');
+    let placementFrame = 0;
+
+    const positionEntryTooltip = (entry: HTMLElement) => {
+      entry.classList.remove('is-tooltip-above');
+      if (!entry.classList.contains('is-open') || !mobileMembersQuery.matches) return;
+
+      const trigger = entry.querySelector<HTMLElement>('[data-member-trigger]');
+      const detail = entry.querySelector<HTMLElement>('.member-tooltip');
+      if (!trigger || !detail) return;
+
+      const visualViewport = window.visualViewport;
+      const viewportTop = visualViewport?.offsetTop ?? 0;
+      const viewportBottom = viewportTop + (visualViewport?.height ?? window.innerHeight);
+      const headerBottom =
+        document.querySelector<HTMLElement>('.site-header')?.getBoundingClientRect().bottom ?? 0;
+      const triggerRect = trigger.getBoundingClientRect();
+      const detailHeight = detail.getBoundingClientRect().height;
+      const safeTop = Math.max(viewportTop + 12, headerBottom + 8);
+      const safeBottom = viewportBottom - 12;
+      const gap = 6;
+      const spaceAbove = triggerRect.top - safeTop - gap;
+      const spaceBelow = safeBottom - triggerRect.bottom - gap;
+
+      entry.classList.toggle(
+        'is-tooltip-above',
+        detailHeight > spaceBelow && spaceAbove > spaceBelow,
+      );
+    };
+
+    const requestOpenEntryPlacement = () => {
+      window.cancelAnimationFrame(placementFrame);
+      placementFrame = window.requestAnimationFrame(() => {
+        placementFrame = 0;
+        const openEntry = entries.find((entry) => entry.classList.contains('is-open'));
+        if (openEntry) positionEntryTooltip(openEntry);
+      });
+    };
 
     const setEntryOpen = (entry: HTMLElement, open: boolean) => {
       entry.classList.toggle('is-open', open);
       entry.querySelector<HTMLButtonElement>('[data-member-trigger]')
         ?.setAttribute('aria-expanded', String(open));
 
-      if (!open || !window.matchMedia('(max-width: 680px)').matches) return;
+      if (!open) {
+        entry.classList.remove('is-tooltip-above');
+        return;
+      }
 
-      window.requestAnimationFrame(() => {
-        const detail = entry.querySelector<HTMLElement>('.member-tooltip');
-        if (!detail) return;
-
-        const rect = detail.getBoundingClientRect();
-        const headerBottom =
-          document.querySelector<HTMLElement>('.site-header')?.getBoundingClientRect().bottom ?? 0;
-        const viewportBottom = window.innerHeight - 12;
-
-        if (rect.top < headerBottom + 8 || rect.bottom > viewportBottom) {
-          detail.scrollIntoView({
-            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-              ? 'auto'
-              : 'smooth',
-            block: rect.height > viewportBottom - headerBottom ? 'start' : 'nearest',
-          });
-        }
-      });
+      requestOpenEntryPlacement();
     };
 
     const closeEntries = (except?: HTMLElement) => {
@@ -302,6 +326,10 @@ const getGithubUrl = (github?: string) => {
       setEntryOpen(openEntry, false);
       openEntry.querySelector<HTMLButtonElement>('[data-member-trigger]')?.focus();
     });
+
+    window.addEventListener('resize', requestOpenEntryPlacement);
+    window.visualViewport?.addEventListener('resize', requestOpenEntryPlacement);
+    mobileMembersQuery.addEventListener('change', requestOpenEntryPlacement);
   </script>
 </BaseLayout>
 
@@ -855,34 +883,7 @@ const getGithubUrl = (github?: string) => {
       max-width: none;
     }
 
-    .member-entry.is-open {
-      display: grid;
-      width: 100%;
-      max-width: none;
-      grid-column: 1 / -1;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 0.4rem;
-    }
-
-    .member-entry.is-open:nth-child(odd) .member-card {
-      grid-column: 1;
-    }
-
-    .member-entry.is-open:nth-child(even) .member-card {
-      grid-column: 2;
-    }
-
     .member-list > .member-entry:last-child:nth-child(odd) {
-      width: calc(50% - 0.2rem);
-      justify-self: center;
-      grid-column: 1 / -1;
-    }
-
-    .member-list > .member-entry.is-open:last-child:nth-child(odd) {
-      width: 100%;
-    }
-
-    .member-list > .member-entry.is-open:last-child:nth-child(odd) .member-card {
       width: calc(50% - 0.2rem);
       justify-self: center;
       grid-column: 1 / -1;
@@ -903,27 +904,66 @@ const getGithubUrl = (github?: string) => {
       font-size: 0.875rem;
     }
 
+    .member-tooltip {
+      top: calc(100% + 0.35rem);
+      right: auto;
+      bottom: auto;
+      left: 0;
+      width: calc(200% + 0.4rem);
+      max-width: calc(100vw - 2rem);
+      transform: translateY(0.35rem);
+    }
+
+    .member-entry:nth-child(even) .member-tooltip {
+      right: 0;
+      left: auto;
+    }
+
+    .member-list > .member-entry:last-child:nth-child(odd) .member-tooltip {
+      right: auto;
+      left: 50%;
+      transform: translate(-50%, 0.35rem);
+    }
+
+    .member-entry.is-tooltip-above .member-tooltip {
+      top: auto;
+      bottom: calc(100% + 0.35rem);
+      transform: translateY(-0.35rem);
+    }
+
+    .member-list > .member-entry.is-tooltip-above:last-child:nth-child(odd) .member-tooltip {
+      transform: translate(-50%, -0.35rem);
+    }
+
     .member-entry:hover .member-tooltip,
     .member-entry:focus-within .member-tooltip {
       visibility: hidden;
       opacity: 0;
       pointer-events: none;
-      transform: translate(-50%, 0.35rem);
     }
 
     .member-entry.is-open .member-tooltip {
-      position: static;
+      position: absolute;
       z-index: 50;
       display: block;
-      width: 100%;
-      max-width: none;
-      margin-top: 0.35rem;
-      grid-column: 1 / -1;
       visibility: visible;
       opacity: 1;
       pointer-events: auto;
-      scroll-margin-top: 6.25rem;
-      transform: none;
+      transform: translateY(0);
+    }
+
+    .member-list > .member-entry.is-open:last-child:nth-child(odd) .member-tooltip {
+      transform: translate(-50%, 0);
+    }
+
+    .member-entry.is-open.is-tooltip-above .member-tooltip {
+      transform: translateY(0);
+    }
+
+    .member-list
+      > .member-entry.is-open.is-tooltip-above:last-child:nth-child(odd)
+      .member-tooltip {
+      transform: translate(-50%, 0);
     }
 
     .member-entry.is-open .member-tooltip::before,

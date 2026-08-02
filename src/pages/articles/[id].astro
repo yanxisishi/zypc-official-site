@@ -153,6 +153,9 @@ const formattedUpdatedAt = article.data.updatedAt
 
   <script>
     document.querySelectorAll<HTMLPreElement>('.article-body .prose pre').forEach((pre) => {
+      pre.style.setProperty('-webkit-text-size-adjust', 'none');
+      pre.style.setProperty('text-size-adjust', 'none');
+
       if (pre.closest('.code-block-shell')) return;
 
       const code = pre.querySelector('code');
@@ -330,6 +333,8 @@ const formattedUpdatedAt = article.data.updatedAt
   }
 
   .article-body {
+    --article-code-font-size: 0.88rem;
+
     padding: 1.35rem clamp(1.6rem, 4vw, 3.25rem) 3.25rem;
   }
 
@@ -425,6 +430,35 @@ const formattedUpdatedAt = article.data.updatedAt
   .article-body :global(.prose table) {
     max-width: 100%;
     overflow-x: auto;
+  }
+
+  .article-body :global(.prose pre) {
+    font-size: var(--article-code-font-size);
+    overflow-wrap: normal;
+    white-space: pre;
+    word-break: normal;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+  }
+
+  .article-body :global(.prose pre code),
+  .article-body :global(.prose pre .line),
+  .article-body :global(.prose pre .line > span) {
+    font-size: inherit;
+    line-height: inherit;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+  }
+
+  .article-body :global(.prose pre code) {
+    overflow-wrap: normal;
+    white-space: inherit;
+    word-break: normal;
+  }
+
+  .article-body :global(.prose pre .line::before) {
+    font-size: 1em;
+    line-height: inherit;
   }
 
   .article-toc-wrap {
@@ -630,6 +664,8 @@ const formattedUpdatedAt = article.data.updatedAt
     }
 
     .article-body {
+      --article-code-font-size: 0.82rem;
+
       padding: 0.9rem 1.1rem 2.25rem;
     }
 
@@ -650,15 +686,7 @@ const formattedUpdatedAt = article.data.updatedAt
 
     .article-body :global(.prose pre) {
       padding: 1.45rem 0.8rem 0.9rem;
-      font-size: 0.78rem;
       border-radius: 0.58rem;
-    }
-
-    .article-body :global(.prose pre code),
-    .article-body :global(.prose pre .line),
-    .article-body :global(.prose pre .line > span) {
-      font-size: inherit;
-      line-height: inherit;
     }
   }
 
