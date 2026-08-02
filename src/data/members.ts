@@ -76,7 +76,7 @@ const memberGroups: MemberGroup[] = [
         nickname: 'Tooki',
         sitenick: 'reverse,misc',
         title: 'Tookinparty',
-        directions: ['二进制 安全'],
+        directions: ['二进制安全'],
         qq: '3323198776',
         github: 'Tookiiiii',
         blog: ' https://tooki-blog.vercel.app',
@@ -95,9 +95,19 @@ const memberGroups: MemberGroup[] = [
         sitenick: 'pwn',
         title: 'f0risty',
         directions: ['pwn'],
-        qq: '3405603002',
+        qq: '3405626113',
         blog: 'https://echofeild.com/',
-      }
+      },
+      {
+        nickname: '不开心就喝酱油',
+        sitenick: 'reserve',
+        title: '酱油ing',
+        directions: ['逆向工程'],
+        qq: '303137046',
+        github: 'pank1ng',
+        blog: 'https://blog.jiangyou.dpdns.org',
+      },
+
     ],
   },
   // #endregion
