@@ -83,6 +83,7 @@ const memberGroups: MemberGroup[] = [
         title: 'waterbucket',
         directions: ['Web', 'Dev'],
         github: 'WaterBucket0819',
+        blog: '',
       },
       {
         nickname: 'Mingyi',
@@ -90,7 +91,7 @@ const memberGroups: MemberGroup[] = [
         title: 'Mingyi',
         directions: ['Misc'],
         github: 'DayDayDayDreaming',
-        blog: 'http://47.103.122.112/',
+        blog: '',
       },
       {
         nickname: 'Wald',
@@ -98,6 +99,7 @@ const memberGroups: MemberGroup[] = [
         title: 'Wald',
         directions: ['Mobile', 'Pwn'],
         github: 'shareLanb',
+        blog: '',
       },
       {
         nickname: 'dmw',
@@ -105,6 +107,7 @@ const memberGroups: MemberGroup[] = [
         title: 'dmw',
         directions: ['Web'],
         github: 'dmwww',
+        blog: '',
       },
       {
         nickname: 'TUTo',
@@ -112,7 +115,7 @@ const memberGroups: MemberGroup[] = [
         title: 'TUTo',
         directions: ['Pwn'],
         github: 'TUTo-Y',
-        blog: 'http://39.99.32.130/',
+        blog: '',
       },
       {
         nickname: 'auto',
@@ -170,7 +173,7 @@ const memberGroups: MemberGroup[] = [
         directions: ['Crypto'],
         qq: '334285969',
         github: 'P3rp13xity',
-        blog: 'https://P3rp13xity.github.io/',
+        blog: '',
       },
       {
         nickname: 'Starfish',
