@@ -233,6 +233,27 @@ const getGithubUrl = (github?: string) => {
       entry.classList.toggle('is-open', open);
       entry.querySelector<HTMLButtonElement>('[data-member-trigger]')
         ?.setAttribute('aria-expanded', String(open));
+
+      if (!open || !window.matchMedia('(max-width: 680px)').matches) return;
+
+      window.requestAnimationFrame(() => {
+        const detail = entry.querySelector<HTMLElement>('.member-tooltip');
+        if (!detail) return;
+
+        const rect = detail.getBoundingClientRect();
+        const headerBottom =
+          document.querySelector<HTMLElement>('.site-header')?.getBoundingClientRect().bottom ?? 0;
+        const viewportBottom = window.innerHeight - 12;
+
+        if (rect.top < headerBottom + 8 || rect.bottom > viewportBottom) {
+          detail.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+              ? 'auto'
+              : 'smooth',
+            block: rect.height > viewportBottom - headerBottom ? 'start' : 'nearest',
+          });
+        }
+      });
     };
 
     const closeEntries = (except?: HTMLElement) => {
@@ -834,7 +855,34 @@ const getGithubUrl = (github?: string) => {
       max-width: none;
     }
 
+    .member-entry.is-open {
+      display: grid;
+      width: 100%;
+      max-width: none;
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 0.4rem;
+    }
+
+    .member-entry.is-open:nth-child(odd) .member-card {
+      grid-column: 1;
+    }
+
+    .member-entry.is-open:nth-child(even) .member-card {
+      grid-column: 2;
+    }
+
     .member-list > .member-entry:last-child:nth-child(odd) {
+      width: calc(50% - 0.2rem);
+      justify-self: center;
+      grid-column: 1 / -1;
+    }
+
+    .member-list > .member-entry.is-open:last-child:nth-child(odd) {
+      width: 100%;
+    }
+
+    .member-list > .member-entry.is-open:last-child:nth-child(odd) .member-card {
       width: calc(50% - 0.2rem);
       justify-self: center;
       grid-column: 1 / -1;
@@ -864,17 +912,18 @@ const getGithubUrl = (github?: string) => {
     }
 
     .member-entry.is-open .member-tooltip {
-      position: fixed;
-      z-index: 150;
-      bottom: 1rem;
-      left: 50%;
+      position: static;
+      z-index: 50;
       display: block;
-      width: max-content;
-      max-width: calc(100vw - 1.5rem);
+      width: 100%;
+      max-width: none;
+      margin-top: 0.35rem;
+      grid-column: 1 / -1;
       visibility: visible;
       opacity: 1;
       pointer-events: auto;
-      transform: translateX(-50%);
+      scroll-margin-top: 6.25rem;
+      transform: none;
     }
 
     .member-entry.is-open .member-tooltip::before,
