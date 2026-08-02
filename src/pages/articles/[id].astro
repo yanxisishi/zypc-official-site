@@ -651,10 +651,14 @@ const formattedUpdatedAt = article.data.updatedAt
     .article-body :global(.prose pre) {
       padding: 1.45rem 0.8rem 0.9rem;
       font-size: 0.78rem;
+      border-radius: 0.58rem;
     }
 
-    .article-body :global(.prose pre) {
-      border-radius: 0.58rem;
+    .article-body :global(.prose pre code),
+    .article-body :global(.prose pre .line),
+    .article-body :global(.prose pre .line > span) {
+      font-size: inherit;
+      line-height: inherit;
     }
   }
 

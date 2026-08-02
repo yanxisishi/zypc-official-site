@@ -9,6 +9,8 @@
 
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body,
@@ -606,6 +608,8 @@
 
   .prose pre {
     position: relative;
+    min-width: 0;
+    max-width: 100%;
     overflow-x: auto;
     margin: 1.35rem 0;
     padding: 1.55rem 1rem 1rem;
@@ -617,6 +621,8 @@
     font-size: 0.88rem;
     line-height: 1.55;
     tab-size: 4;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
     scrollbar-color: var(--line-strong) transparent;
     scrollbar-width: thin;
   }
@@ -638,6 +644,8 @@
 
   .prose .code-block-shell {
     position: relative;
+    min-width: 0;
+    max-width: 100%;
     margin: 1.35rem 0;
   }
 
