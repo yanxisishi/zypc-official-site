@@ -199,7 +199,7 @@ const memberGroups: MemberGroup[] = [
     entries: [
       {
         nickname: '康可',
-        sitenick: 'web',
+        sitenick: 'Web',
         title: '康可ing',
         directions: ['Web 安全'],
         qq: '3497863696',
@@ -208,7 +208,7 @@ const memberGroups: MemberGroup[] = [
       },
       {
         nickname: 'Tooki',
-        sitenick: 'reverse,misc',
+        sitenick: 'Reverse, Misc',
         title: 'Tookinparty',
         directions: ['二进制安全'],
         qq: '3323198776',
@@ -217,7 +217,7 @@ const memberGroups: MemberGroup[] = [
       },
       {
         nickname: 'uky',
-        sitenick: 'web',
+        sitenick: 'Web',
         title: 'uky',
         directions: ['Web 安全'],
         qq: '3036074562',
@@ -226,7 +226,7 @@ const memberGroups: MemberGroup[] = [
       },
       {
         nickname: '爱吃豆包',
-        sitenick: 'pwn',
+        sitenick: 'Pwn',
         title: 'f0risty',
         directions: ['pwn'],
         qq: '3405626113',
@@ -235,7 +235,7 @@ const memberGroups: MemberGroup[] = [
       },
       {
         nickname: '不开心就喝酱油',
-        sitenick: 'reserve',
+        sitenick: 'Reserve',
         title: '酱油ing',
         directions: ['逆向工程'],
         qq: '303137046',
