@@ -20,7 +20,17 @@ const memberGroups: MemberGroup[] = [
   {
     cohort: '2021',
     desc: '2021 年加入',
-    entries: [],
+    entries: [
+      {
+        nickname: 'Y0ung_',
+        sitenick: 'reverse,misc',
+        title: 'Y0ung_',
+        directions: ['reverse,misc'],
+        qq: '',
+        github: 'Y0ungS',
+        blog: 'https://y0ungs.github.io/',
+      },
+    ],
   },
   // #endregion
 
