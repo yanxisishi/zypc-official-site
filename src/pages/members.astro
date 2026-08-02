@@ -1023,8 +1023,24 @@ const getGithubUrl = (github?: string) => {
       flex-basis: 2.35rem;
     }
 
+    .member-card__identity {
+      flex: 1 1 auto;
+      gap: 0.1rem;
+    }
+
     .member-card__name {
+      min-width: 0;
+      flex: 1 1 auto;
       font-size: 0.875rem;
+    }
+
+    .member-card__sitenick {
+      overflow: visible;
+      max-width: none;
+      flex: 0 0 auto;
+      font-size: clamp(0.65rem, 3vw, 0.75rem);
+      text-overflow: clip;
+      white-space: nowrap;
     }
 
     .member-tooltip {
