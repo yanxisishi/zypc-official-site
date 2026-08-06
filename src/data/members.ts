@@ -55,6 +55,14 @@ const memberGroups: MemberGroup[] = [
         blog: 'https://fault.thisis.host/',
       },
       {
+        nickname: 'daaihang',
+        sitenick: 'Reverse',
+        title: 'daaihang',
+        directions: ['Reverse'],
+        github: 'daaihang',
+        blog: 'https://wdh.hk',
+      },
+      {
         nickname: 'Am0unt',
         sitenick: '渗透',
         title: 'Am0unt',
